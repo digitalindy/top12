@@ -1,9 +1,9 @@
 import './globals.css'
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import '@radix-ui/themes/styles.css';
+import type {Metadata} from 'next'
+import {Inter} from 'next/font/google'
 import React from "react";
-import { Theme } from '@radix-ui/themes';
+import {Providers} from "@/app/providers";
+// import {Box, Container} from "@chakra-ui/react";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,9 +20,7 @@ export default function RootLayout({
   return (
       <html lang="en">
       <body className={inter.className}>
-      <Theme>
-        {children}
-      </Theme>
+      <Providers>{children}</Providers>
       </body>
       </html>
   )

@@ -1,17 +1,15 @@
 import 'server-only'
 
-import Image from 'next/image'
-import styles from './page.module.css'
-import { Box } from '@radix-ui/themes';
-import Movies from "@/app/Movies";
-import MoviesList from "@/app/MoviesList";
-
-const movies = new Movies()
+import UsersList from "@/app/UsersList";
+import Core from "@/app/core/Core";
 
 export default async function Home() {
-  const search = await movies.search('what')
 
-  return (
-    <MoviesList movies={search} />
-  )
+    const allUsers = await Core.instance.hydrateUser(await Core.instance.listUsers())
+
+    return (
+        <>
+            <UsersList users={allUsers} />
+        </>
+    )
 }
