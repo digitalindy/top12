@@ -1,14 +1,12 @@
 import 'server-only'
 
 import {AxiosResponse} from "axios";
-import {Db, MongoClient, ObjectId} from "mongodb";
+import {Collection, MongoClient, ObjectId} from "mongodb";
 
 export interface User {
     _id: ObjectId
     name: string,
-    top: {
-       id: string
-    }[]
+    top: string[]
 }
 
 export interface Movie {
@@ -39,68 +37,82 @@ export default class Core {
 
 
     private axios = require('axios').default;
-    private database: Db | undefined = undefined
+
+    private users : Collection<Document> | undefined = undefined
 
     constructor() {}
 
     async setup() {
-        if (this.database != undefined) {
+        if (this.users != undefined) {
             return Promise.resolve()
         }
 
         const client = new MongoClient(process.env.MONGODB_URI!!)
         await client.connect()
 
-        this.database = client.db("top12");
-
-        console.log(`Successfully connected to database: ${this.database.databaseName}`);
+        const database = client.db("top12");
+        this.users = database!!.collection("users");
     }
 
-    async listUsers(): Promise<User[]> {
+    listUsers = async (): Promise<HydratedUser[]> => {
         await this.setup()
 
-        const users = this.database!!.collection("users");
+        const users = await this.users!!.find().toArray() as unknown as User[]
 
-        return await users.find().toArray() as User[]
+        return this.hydrateUsers(users)
     }
 
-    setMovies = async (user: string, ids: number[]) => {
+    updateUser = async (user: HydratedUser) => {
         await this.setup()
 
-        const users = this.database!!.collection("users");
-        return users.updateOne({
-            _id: ObjectId.createFromHexString(user)
+        return this.users!!.updateOne({
+            _id: ObjectId.createFromHexString(user.id)
         }, {
-            $set: {top: ids}
+            $set: {
+                name: user.name,
+                top: user.top.map(movie => movie.id)
+            }
         })
     }
 
-    addMovie = async (user: string, id: number) => {
-        await this.setup()
+    // addMovie = async (user: string, id: number) => {
+    //     await this.setup()
+    //
+    //     return this.users!!.updateOne({
+    //         _id: ObjectId.createFromHexString(user)
+    //     }, {
+    //         $push: { top: id}
+    //     })
+    // }
 
-        const users = this.database!!.collection("users");
-        return users.updateOne({
-            _id: ObjectId.createFromHexString(user)
-        }, {
-            $push: { top: id}
-        })
-    }
-
-    hydrateUser = (users: User[]) : Promise<HydratedUser[]> => {
+    hydrateUsers = (users: User[]) : Promise<HydratedUser[]> => {
         return Promise.all(users.map(async (user) => {
             return {
                 id: user._id.toHexString(),
                 name: user.name,
-                top: await Promise.all(user.top.map(async (id) => {
-                    try {
-                        const response= await this.get("/movie/" + id);
-                        return response.data as HydratedMovie
-                    } catch (e) {
-                        return (await this.get("/movie/823754")).data as HydratedMovie;
-                    }
-                }))
+                top: await Promise.all(
+                    user.top.map(this.getMovie))
             }}
         ))
+    }
+
+    getMovie = async (id: string) => {
+        try {
+            const response= await this.get("/movie/" + id);
+            return response.data as HydratedMovie
+        } catch (e) {
+            return (await this.get("/movie/823754")).data as HydratedMovie;
+        }
+    }
+
+    getUser = async (id: string) => {
+        await this.setup()
+
+        const slim = await this.users!!.findOne({
+            _id: ObjectId.createFromHexString(id)
+        }) as unknown as User
+
+        return this.hydrateUsers([slim])
     }
 
     searchMovie = async (query: string): Promise<HydratedMovie[]> => {

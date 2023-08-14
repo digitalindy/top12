@@ -1,32 +1,31 @@
 'use client'
 
-import React, {FormEvent, useEffect, useState} from "react";
-import {addMovie, search, setMovies} from "@/app/core/bridge";
+import React, {useEffect, useState} from "react";
+import NextLink from 'next/link'
+import {getUser, search, updateUser} from "@/app/core/bridge";
 import {
     Button,
     Card,
     CardBody,
     CardFooter,
-    Flex,
-    FormControl,
-    FormHelperText,
-    FormLabel,
+    CircularProgress,
     Heading,
     Image,
+    Link,
     Stack,
     Text,
     VStack
-} from "@chakra-ui/react";
-import {FiArrowLeft, FiX} from "react-icons/fi";
+} from '@chakra-ui/react'
+import {FiX} from "react-icons/fi";
 import {HydratedMovie, HydratedUser} from "@/app/core/Core";
 import {Reorder} from "framer-motion";
 import {AutoComplete, AutoCompleteInput, AutoCompleteItem, AutoCompleteList, Item} from "@choc-ui/chakra-autocomplete";
 
-export default function Edit({user, onExit}: {
-    user: HydratedUser,
-    onExit: () => void}) {
+export default function Edit({params}: {
+    params: { user: string }
+}) {
 
-    const [top, setTop] = useState<HydratedMovie[]>([])
+    const [user, setUser] = useState<HydratedUser>()
 
     const [searchItems, setSearchItems] = useState<HydratedMovie[]>([]);
 
@@ -35,18 +34,22 @@ export default function Edit({user, onExit}: {
     const [searching, setSearching] = useState<boolean>(false)
 
     useEffect(() => {
-        setTop(user.top)
-    }, [setTop, user]);
+        getUser(params.user)
+            .then((user) => {
+                setUser(user)
+            })
+    }, [params]);
 
     useEffect(() => {
-        if (top.length > 0) {
-            setMovies(user.id, top.map(movie => movie.id))
+        if (user) {
+            console.log("saving user")
+            updateUser(user)
                 .then(() => {
-
+                    //todo alert saved
                 })
         }
 
-    }, [user, top]);
+    }, [user]);
 
     useEffect(() => {
         if (searching || lastSuccessSearch == lastSearch) {
@@ -70,8 +73,12 @@ export default function Edit({user, onExit}: {
     }, [lastSearch, searching, lastSuccessSearch])
 
     const addFromAutoComplete = (event: {item: Item}) => {
-        const movie = event.item.originalValue
-        setTop([movie, ...top])
+        const movie : HydratedMovie = event.item.originalValue
+
+        user!!.top.unshift(movie)
+
+        setUser(Object.assign({}, user))
+
         return false
     }
 
@@ -85,19 +92,26 @@ export default function Edit({user, onExit}: {
     }
 
     const filterOutTop = (query: string, optionValue: Item["value"], optionLabel: Item["label"]) => {
-        return top.findIndex((movie) => movie.id == optionValue.split(":")[0]) == -1
+        return user!!.top.findIndex((movie) => movie.id == optionValue.split(":")[0]) == -1
     }
 
     const remove = (id: number) => {
-        const filtered = top.filter(movie => movie.id != id)
-        setTop(Object.assign([], filtered))
+        const filtered = user!!.top.filter(movie => movie.id != id)
+
+        user!!.top = filtered
+
+        setUser(Object.assign({}, user))
+    }
+
+    if (user == undefined) {
+        return <CircularProgress isIndeterminate color='green.300' />
     }
 
     return (
         <>
-            <Button leftIcon={<FiArrowLeft />} onClick={onExit}>
+            <Link as={NextLink} href='/'>
                 Back
-            </Button>
+            </Link>
             <VStack>
                 <AutoComplete freeSolo
                               restoreOnBlurIfEmpty={false}
@@ -120,10 +134,14 @@ export default function Edit({user, onExit}: {
                         ))}
                     </AutoCompleteList>
                 </AutoComplete>
-                <Heading>Your Top Movies</Heading>
+                <Heading>{user.name + "'"}s Top Movies</Heading>
 
-                <Reorder.Group as="ol" axis="y" values={top} onReorder={setTop}>
-                    {top.map((movie) => (
+                <Reorder.Group as="ol" axis="y" values={user!!.top} onReorder={(top) => {
+                    user!!.top = top
+
+                    setUser(Object.assign({}, user))
+                }}>
+                    {user!!.top.map((movie) => (
                         <Reorder.Item key={movie.id} value={movie}>
                             <Card
                                 direction={{ base: 'column', sm: 'row' }}

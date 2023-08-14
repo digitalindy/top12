@@ -1,14 +1,14 @@
 'use client'
 
-import React, {useState} from "react";
-import Edit from "@/app/edit/page";
+import React from "react";
 import {
     Box,
     Card,
     CardBody,
     CardHeader,
     Heading,
-    IconButton,
+    Icon,
+    Link,
     ListItem,
     OrderedList,
     Stack,
@@ -17,14 +17,9 @@ import {
 import {MovieCard} from "@/app/MovieCard";
 import {FiEdit} from "react-icons/fi";
 import {HydratedUser} from "@/app/core/Core";
+import NextLink from "next/link";
 
 export default function UsersList({users}: {users: HydratedUser[]}) {
-
-    const [edit, setEdit] = useState<HydratedUser>()
-
-    if (edit) {
-        return <Edit user={edit} onExit={() => setEdit(undefined)}/>
-    }
 
     return (
         <>
@@ -39,12 +34,11 @@ export default function UsersList({users}: {users: HydratedUser[]}) {
                             <Box key={user.id}>
                                 <Heading size='xs' textTransform='uppercase'>
                                     {user.name}
-                                    <IconButton
-                                        ml={3}
-                                        onClick={() => setEdit(user)}
-                                        aria-label='Edit'
-                                        icon={<FiEdit/>}
-                                    />
+
+                                    <Link as={NextLink} href={"/" + user.id}>
+                                        Edit
+                                        <Icon as={FiEdit} />
+                                    </Link>
                                 </Heading>
                                 <Box pt='2' fontSize='sm'>
                                     <OrderedList>

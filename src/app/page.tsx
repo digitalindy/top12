@@ -5,7 +5,7 @@ import Core from "@/app/core/Core";
 
 export default async function Home() {
 
-    const allUsers = await Core.instance.hydrateUser(await Core.instance.listUsers())
+    const allUsers = await Core.instance.listUsers()
 
     return (
         <>
