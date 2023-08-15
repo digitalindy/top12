@@ -58,7 +58,7 @@ export default function Edit({params}: {
     return (
         <>
             <VStack>
-                <Alert status='info' m={1} fontSize='sm'>
+                <Alert status='info' m={1} fontSize='sm' borderRadius='lg'>
                     <AlertIcon boxSize={4}/>
                     Tap a movie name for more details!
                 </Alert>

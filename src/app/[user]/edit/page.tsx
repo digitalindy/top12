@@ -242,7 +242,7 @@ export default function Edit({params}: {
     return (
         <>
             <VStack>
-                <Alert status='info' m={1} fontSize='sm'>
+                <Alert status='info' m={1} fontSize='sm' borderRadius='lg'>
                     <AlertIcon/>
                     Keep adding past 12 movies to add to your honorable mentions
                 </Alert>

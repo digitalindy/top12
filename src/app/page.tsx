@@ -36,7 +36,7 @@ export default function Index() {
 
     return (
         <>
-            <Alert status='info' m={1} fontSize='sm'>
+            <Alert status='info' m={1} fontSize='sm' borderRadius='lg'>
                 <AlertIcon boxSize={4}/>
                 Tap a list name for a more detailed view!
             </Alert>

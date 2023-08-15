@@ -149,7 +149,10 @@ export default class Core {
         }
 
         return this.topRatedc!!.find().toArray()
-            .then(movies => movies.map(movie => movie as unknown as Movie))
+            .then(movies => movies.map(movie => {
+                delete (movie as any)['_id']
+                return movie as unknown as Movie
+            }))
     }
 
     get = async (url: string): Promise<AxiosResponse> => {
