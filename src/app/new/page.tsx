@@ -15,9 +15,9 @@ import {
     useToast,
     VStack
 } from '@chakra-ui/react'
-import {FiPlus} from "react-icons/fi";
 import {BsPerson} from "react-icons/bs";
 import {useRouter} from "next/navigation";
+import {FaPlus} from "react-icons/fa6";
 
 export default function New() {
 
@@ -71,7 +71,7 @@ export default function New() {
                         fontSize='sm'
                         fontWeight={400}
                         aria-label='New'
-                        leftIcon={<FiPlus/>}>
+                        leftIcon={<FaPlus/>}>
                         Create
                     </Button>
                 </VStack>

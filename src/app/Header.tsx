@@ -19,8 +19,8 @@ import {
 } from '@chakra-ui/react'
 import {ChevronDownIcon, ChevronRightIcon, CloseIcon, HamburgerIcon,} from '@chakra-ui/icons'
 import NextLink from "next/link";
-import {FiPlus} from "react-icons/fi";
 import React from "react";
+import {FaPlus} from "react-icons/fa6";
 
 export default function Header() {
     const {isOpen, onToggle} = useDisclosure()
@@ -68,7 +68,7 @@ export default function Header() {
                             fontSize='sm'
                             fontWeight={400}
                             aria-label='New List'
-                            leftIcon={<FiPlus/>}>
+                            leftIcon={<FaPlus/>}>
                             New List
                         </Button>
                     </Link>

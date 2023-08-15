@@ -16,9 +16,9 @@ import {
     Link,
     VStack
 } from '@chakra-ui/react'
-import {FiEdit} from "react-icons/fi";
 import {User} from "@/app/server/Core";
 import MovieCard from "@/app/MovieCard";
+import {FaPenToSquare} from "react-icons/fa6";
 
 export default function Edit({params}: {
     params: { user: string }
@@ -70,7 +70,7 @@ export default function Edit({params}: {
                             as='a'
                             m={3}
                             aria-label='Edit'
-                            leftIcon={<FiEdit/>}>
+                            leftIcon={<FaPenToSquare/>}>
                             Edit
                         </Button>
                     </Link>

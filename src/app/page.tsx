@@ -10,8 +10,19 @@ export default function Index() {
 
     const [users, setUsers] = useState<User[]>()
 
+    function shuffle(users: User[]) {
+        for (var i = users.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = users[i];
+            users[i] = users[j];
+            users[j] = temp;
+        }
+        return users
+    }
+
     useEffect(() => {
         listUsers()
+            .then(users => shuffle(users))
             .then(setUsers)
     }, []);
 
