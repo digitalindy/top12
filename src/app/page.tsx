@@ -38,7 +38,7 @@ export default function Index() {
         <>
             <Alert status='info' m={1} fontSize='sm'>
                 <AlertIcon boxSize={4}/>
-                Tap a list name for a more detailed list!
+                Tap a list name for a more detailed view!
             </Alert>
             {users.map((user) => (
                 <Flex key={`${user.id}`} direction='column'>

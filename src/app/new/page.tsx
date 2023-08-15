@@ -11,6 +11,7 @@ import {
     Input,
     InputGroup,
     InputLeftElement,
+    Textarea,
     useColorModeValue,
     useToast,
     VStack
@@ -18,16 +19,18 @@ import {
 import {BsPerson} from "react-icons/bs";
 import {useRouter} from "next/navigation";
 import {FaPlus} from "react-icons/fa6";
+import {PHILOSOPHY_PLACEHOLDER} from "@/app/server/etc";
 
 export default function New() {
 
     const [name, setName] = useState<string>("")
+    const [philosophy, setPhilosophy] = useState<string>("")
 
     const toast = useToast()
     const router = useRouter()
 
     const create = () => {
-        createUser(name)
+        createUser(name, philosophy)
             .then((user) => {
                 toast({
                     title: 'New Top12 created.',
@@ -35,8 +38,6 @@ export default function New() {
                     status: 'success',
                     duration: 9000,
                 })
-
-                console.log(user)
 
                 router.replace(`/${user.id}/edit`)
             })
@@ -48,6 +49,7 @@ export default function New() {
                 New Top12
             </Heading>
             <Box
+                w={'100%'}
                 bg={useColorModeValue('white', 'gray.700')}
                 borderRadius="lg"
                 p={8}
@@ -63,6 +65,17 @@ export default function New() {
                             </InputLeftElement>
                             <Input type="text" name="name" placeholder="Your Name"
                                    onChange={(event) => setName(event.target.value)}/>
+                        </InputGroup>
+                    </FormControl>
+
+                    <FormControl isRequired>
+                        <FormLabel>Philosophy</FormLabel>
+
+                        <InputGroup>
+                            <Textarea
+                                h={150}
+                                onChange={(event) => setPhilosophy(event.target.value)}
+                                placeholder={PHILOSOPHY_PLACEHOLDER}/>
                         </InputGroup>
                     </FormControl>
                     <Button

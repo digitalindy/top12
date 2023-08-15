@@ -18,8 +18,8 @@ export async function updateUser(user: User) {
     return Core.instance.updateUser(user)
 }
 
-export async function createUser(name: string) {
-    return Core.instance.createUser(name)
+export async function createUser(name: string, philosophy: string) {
+    return Core.instance.createUser({name: name, philosophy: philosophy})
 }
 
 export async function topRated() {

@@ -14,6 +14,7 @@ import {
     Heading,
     HStack,
     Link,
+    Text,
     VStack
 } from '@chakra-ui/react'
 import {User} from "@/app/server/Core";
@@ -75,6 +76,19 @@ export default function Edit({params}: {
                         </Button>
                     </Link>
                 </HStack>
+
+                <Box w={'100%'}>
+                    <Heading size='sm'>
+                        Philosophy
+                    </Heading>
+                    {/*<Box backgroundColor='white'>*/}
+                    <Text pt='2' backgroundColor='white' p={3} mt={3}
+                          rounded='lg'
+                          fontSize='sm'>
+                        {user.philosophy}
+                    </Text>
+                    {/*</Box>*/}
+                </Box>
 
                 <Box pt='2' fontSize='sm'>
                     <Heading textAlign='left' w="100%" size='sm' my={2}>

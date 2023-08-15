@@ -4,23 +4,31 @@ import React, {useEffect, useRef, useState} from "react";
 import NextLink from 'next/link'
 import {getUser, search, updateUser} from "@/app/server/bridge";
 import {
+    Alert,
     AlertDialog,
     AlertDialogBody,
     AlertDialogContent,
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogOverlay,
+    AlertIcon,
     Button,
     Center,
     CircularProgress,
     Divider,
     Flex,
+    FormControl,
+    FormLabel,
     Heading,
     HStack,
     IconButton,
     Image,
+    Input,
+    InputGroup,
+    InputLeftElement,
     Link,
     Text,
+    Textarea,
     useDisclosure,
     VStack
 } from '@chakra-ui/react'
@@ -29,6 +37,8 @@ import {Reorder, useDragControls} from "framer-motion";
 import {AutoComplete, AutoCompleteInput, AutoCompleteItem, AutoCompleteList, Item} from "@choc-ui/chakra-autocomplete";
 import MovieCard from "@/app/MovieCard";
 import {FaArrowLeft, FaSort, FaTrash} from "react-icons/fa6";
+import {BsPerson} from "react-icons/bs";
+import {PHILOSOPHY_PLACEHOLDER} from "@/app/server/etc";
 
 const ReorderItem = ({movie, onRemove}: { movie: Movie, onRemove: (movie: Movie) => void }) => {
     const controls = useDragControls()
@@ -99,6 +109,9 @@ export default function Edit({params}: {
 
     const [top, setTop] = useState<Movie[]>()
 
+    const [saving, setSaving] = useState<boolean>(false)
+    const [saved, setSaved] = useState<boolean>(false)
+
     useEffect(() => {
         getUser(params.user)
             .then((user) => {
@@ -119,17 +132,22 @@ export default function Edit({params}: {
 
         setUser(Object.assign({}, user))
 
-    }, [top, user]);
+    }, [top, user])
 
     useEffect(() => {
         if (user) {
+            setSaving(true)
             updateUser(user)
                 .then(() => {
-                    //todo alert saved
+                    setSaving(false)
+                    setSaved(true)
+                    setTimeout(() => {
+                        setSaved(false)
+                    }, 4000)
                 })
         }
 
-    }, [user]);
+    }, [user])
 
     useEffect(() => {
         if (searching || lastSuccessSearch == lastSearch) {
@@ -203,10 +221,10 @@ export default function Edit({params}: {
     return (
         <>
             <VStack>
-                {/*<Alert status='info' m={1} fontSize='sm'>*/}
-                {/*    <AlertIcon/>*/}
-                {/*    Arrange your movies by dragging them!*/}
-                {/*</Alert>*/}
+                <Alert status='info' m={1} fontSize='sm'>
+                    <AlertIcon/>
+                    Keep adding past 12 movies to add to your honorable mentions
+                </Alert>
                 <HStack w='100%'>
                     <Link as={NextLink} href={`/${user.id}`} legacyBehavior
                           alignSelf='start'
@@ -221,44 +239,82 @@ export default function Edit({params}: {
                     </Link>
                     <Heading textAlign='left' w="100%" size='md'>
                         Edit {user.name + "'"}s Movies
+                        <CircularProgress isIndeterminate color='green.300' size={4} hidden={!saving} ml={2}/>
+                        <Text as='span' fontSize='xs' color='green.300' ml={2} hidden={!saved}>Saved</Text>
                     </Heading>
                 </HStack>
-                <AutoComplete freeSolo
-                              restoreOnBlurIfEmpty={false}
-                              isLoading={searching}
-                              filter={filterOutTop}
-                              multiple
-                              closeOnSelect={true}
-                              openOnFocus={lastSuccessSearch != undefined}
-                              shouldRenderSuggestions={shouldRender}
-                              onSelectOption={addFromAutoComplete}>
-                    <AutoCompleteInput variant="outline" backgroundColor='white'
-                                       placeholder="Start typing to add a Movie..."/>
-                    <AutoCompleteList py={2}>
-                        {searchItems.map((movie, oid) => (
-                            <AutoCompleteItem
-                                key={`option-${oid}`}
-                                value={movie}
-                                getValue={(value: Movie) => `${value.id}:${value.title}:${new Date(value.release_date).getFullYear()}`}>
-                                <Flex w='10%'>
-                                    <Image
-                                        objectFit='contain'
-                                        src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                                        alt={movie.title}
-                                    />
-                                </Flex>
-                                <VStack w='90%' p={2}>
-                                    <Heading
-                                        w='100%'
-                                        textAlign='left'
-                                        size='sm'>{movie.title} ({new Date(movie.release_date).getFullYear()})</Heading>
-                                    <Text size='sm' noOfLines={3}>{movie.overview}</Text>
-                                </VStack>
-                            </AutoCompleteItem>
-                        ))}
-                    </AutoCompleteList>
-                </AutoComplete>
+                <FormControl isRequired>
+                    <FormLabel>Name</FormLabel>
 
+                    <InputGroup>
+                        <InputLeftElement>
+                            <BsPerson/>
+                        </InputLeftElement>
+                        <Input type="text" name="name" placeholder="Your Name"
+                               value={user.name}
+                               backgroundColor='white'
+                               onChange={(event) => {
+                                   user!!.name = event.target.value
+                                   setUser(Object.assign({}, user))
+                               }}/>
+                    </InputGroup>
+                </FormControl>
+
+                <FormControl isRequired>
+                    <FormLabel>Philosophy</FormLabel>
+
+                    <InputGroup>
+                        <Textarea
+                            h={130}
+                            value={user.philosophy}
+                            backgroundColor='white'
+                            onChange={(event) => {
+                                user.philosophy = event.target.value
+                                setUser(Object.assign({}, user))
+                            }}
+                            placeholder={PHILOSOPHY_PLACEHOLDER}/>
+                    </InputGroup>
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Movies</FormLabel>
+                    <InputGroup>
+                        <AutoComplete freeSolo
+                                      restoreOnBlurIfEmpty={false}
+                                      isLoading={searching}
+                                      filter={filterOutTop}
+                                      multiple
+                                      closeOnSelect={true}
+                                      openOnFocus={lastSuccessSearch != undefined}
+                                      shouldRenderSuggestions={shouldRender}
+                                      onSelectOption={addFromAutoComplete}>
+                            <AutoCompleteInput variant="outline" backgroundColor='white'
+                                               placeholder="Start typing to add a Movie..."/>
+                            <AutoCompleteList py={2}>
+                                {searchItems.map((movie, oid) => (
+                                    <AutoCompleteItem
+                                        key={`option-${oid}`}
+                                        value={movie}
+                                        getValue={(value: Movie) => `${value.id}:${value.title}:${new Date(value.release_date).getFullYear()}`}>
+                                        <Flex w='10%'>
+                                            <Image
+                                                objectFit='contain'
+                                                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                                                alt={movie.title}
+                                            />
+                                        </Flex>
+                                        <VStack w='90%' p={2}>
+                                            <Heading
+                                                w='100%'
+                                                textAlign='left'
+                                                size='sm'>{movie.title} ({new Date(movie.release_date).getFullYear()})</Heading>
+                                            <Text size='sm' noOfLines={3}>{movie.overview}</Text>
+                                        </VStack>
+                                    </AutoCompleteItem>
+                                ))}
+                            </AutoCompleteList>
+                        </AutoComplete>
+                    </InputGroup>
+                </FormControl>
             </VStack>
             <Reorder.Group style={{listStyle: 'none'}} axis="y" values={top!!} onReorder={setTop}>
                 <Heading textAlign='left' w="100%" size='sm' my={2}>
@@ -272,6 +328,7 @@ export default function Edit({params}: {
                     </div>
                 ))}
             </Reorder.Group>
+
         </>
     )
 }

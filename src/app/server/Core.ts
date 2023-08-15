@@ -6,6 +6,7 @@ import {Collection, InsertOneResult, MongoClient, ObjectId, OptionalId, WithId} 
 export interface User {
     id: string,
     name: string,
+    philosophy: string,
     top: Movie[]
 }
 
@@ -48,6 +49,7 @@ export default class Core {
         return {
             id: doc!!._id.toHexString(),
             name: casted.name,
+            philosophy: casted.philosophy,
             top: casted.top
         }
     }
@@ -64,16 +66,18 @@ export default class Core {
             .then(users => users.map(this.toUser))
     }
 
-    createUser = async (name: string): Promise<User> => {
+    createUser = async (user: { name: string, philosophy: string }): Promise<User> => {
         await this.setup()
 
         return this.users!!.insertOne({
-            name: name,
+            name: user.name,
+            philosophy: user.philosophy
         } as unknown as OptionalId<Document>)
             .then((result: InsertOneResult) => (
                 {
                     id: result.insertedId.toHexString(),
-                    name: name,
+                    name: user.name,
+                    philosophy: user.philosophy,
                     top: []
                 }
             ))
@@ -86,6 +90,7 @@ export default class Core {
         await this.users!!.updateOne(this.userFilter(user.id), {
             $set: {
                 name: user.name,
+                philosophy: user.philosophy,
                 top: user.top
             }
         })
