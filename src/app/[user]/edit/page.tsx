@@ -112,7 +112,7 @@ export default function Edit({params}: {
     const [searchItems, setSearchItems] = useState<Movie[]>([]);
 
     const [search, setSearch] = useState<string>()
-    const [lastSeaerch, setLastSearch] = useState<string>()
+    const [lastSearch, setLastSearch] = useState<string>()
     const [searching, setSearching] = useState<boolean>(false)
 
     const [top, setTop] = useState<Movie[]>()
@@ -146,7 +146,7 @@ export default function Edit({params}: {
     }, [top, user])
 
     useEffect(() => {
-        if (!saved && !saving && user && JSON.stringify(user) != JSON.stringify(lastSaved)) {
+        if (!saved && !saving && user && user != lastSaved) {
             setSaving(true)
             updateUser(user)
                 .then(() => {
@@ -166,7 +166,7 @@ export default function Edit({params}: {
     }, [user, lastSaved, saving, saved])
 
     useEffect(() => {
-        if (searching || lastSeaerch == search) {
+        if (searching || lastSearch == search) {
             return
         }
 
@@ -185,7 +185,7 @@ export default function Edit({params}: {
                 }, 200)
             })
 
-    }, [search, searching, lastSeaerch])
+    }, [search, searching, lastSearch])
 
     const addFromAutoComplete = (event: { item: Item }) => {
         const movie: Movie = event.item.originalValue
@@ -199,7 +199,7 @@ export default function Edit({params}: {
 
     const shouldRender = (query: string) => {
         if (query.length > 1) {
-            setLastSearch(query)
+            setSearch(query)
             return true
         }
 
@@ -299,14 +299,14 @@ export default function Edit({params}: {
                 <FormControl>
                     <FormLabel>Movies</FormLabel>
                     <InputGroup>
-                        <VStack>
+                        <VStack w='100%'>
                         <AutoComplete freeSolo
                                       restoreOnBlurIfEmpty={false}
                                       isLoading={searching}
                                       filter={filterOutTop}
                                       multiple
                                       closeOnSelect={true}
-                                      openOnFocus={lastSeaerch != undefined}
+                                      openOnFocus={lastSearch != undefined}
                                       shouldRenderSuggestions={shouldRender}
                                       onSelectOption={addFromAutoComplete}>
                             <AutoCompleteInput variant="outline" backgroundColor='white'
@@ -335,11 +335,11 @@ export default function Edit({params}: {
                                 ))}
                             </AutoCompleteList>
                         </AutoComplete>
+                        <Heading textAlign='left' w="100%" size='sm' my={2}>
+                            Top12
+                        </Heading>
 
                         <Reorder.Group style={{listStyle: 'none'}} axis="y" values={top!!} onReorder={setTop}>
-                            <Heading textAlign='left' w="100%" size='sm' my={2}>
-                                Top12
-                            </Heading>
                             {top!!.map((movie, index) => (
                                 <div key={movie.id}>
                                     <ReorderItem movie={movie} onRemove={remove} sendToBottom={sendToBottom}/>

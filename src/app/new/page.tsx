@@ -30,6 +30,9 @@ export default function New() {
     const router = useRouter()
 
     const create = () => {
+        if (!name) {
+            return
+        }
         createUser(name, philosophy)
             .then((user) => {
                 toast({
@@ -80,6 +83,7 @@ export default function New() {
                     </FormControl>
                     <Button
                         onClick={create}
+                        alignSelf='right'
                         as='a'
                         fontSize='sm'
                         fontWeight={400}

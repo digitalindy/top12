@@ -89,11 +89,11 @@ export default function Edit({params}: {
                     </Text>
                 </Box>
 
-                <Box pt='2' fontSize='sm'>
+                <Box pt='2' fontSize='sm' w='100%'>
                     <Heading textAlign='left' w="100%" size='sm' my={2}>
                         Top12
                     </Heading>
-                    {user!!.top.map((movie, index) => (
+                    {(user!!.top ? user!!.top : []).map((movie, index) => (
                         <div key={movie.id}>
                             <MovieCard movie={movie}/>
                             {honorableBreak(index)}

@@ -48,7 +48,7 @@ export default function Index() {
                         </Link>
                     </Heading>
                     <Flex pt='2' fontSize='sm' w='100%' flexWrap='wrap'>
-                        {user.top.slice(0, 12).map((movie, index) => (
+                        {(user.top ? user.top : []).slice(0, 12).map((movie, index) => (
                             <Card
                                 key={`mc-${movie.id}`}
                                 direction='column'
