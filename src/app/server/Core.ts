@@ -26,9 +26,10 @@ export default class Core {
 
     private axios = require('axios').default;
 
-    private users : Collection<Document> | undefined = undefined
+    private users: Collection<Document> | undefined = undefined
 
-    constructor() {}
+    constructor() {
+    }
 
     async setup() {
         if (this.users) {
@@ -42,7 +43,7 @@ export default class Core {
         this.users = database!!.collection("users");
     }
 
-    toUser = (doc: WithId<Document> | null) : User => {
+    toUser = (doc: WithId<Document> | null): User => {
         const casted = doc as unknown as User
         return {
             id: doc!!._id.toHexString(),
@@ -67,7 +68,7 @@ export default class Core {
         await this.setup()
 
         return this.users!!.insertOne({
-                name: name,
+            name: name,
         } as unknown as OptionalId<Document>)
             .then((result: InsertOneResult) => (
                 {
@@ -90,10 +91,19 @@ export default class Core {
         })
     }
 
-    getUser = async (id: string) : Promise<User> => {
+    getUser = async (id: string): Promise<User> => {
         await this.setup()
 
         return this.users!!.findOne(this.userFilter(id)).then(this.toUser)
+    }
+
+    randomPick = async () => {
+        return this.listUsers()
+            .then(users => users.map(user => user.top))
+            .then(moviess => moviess.flat())
+            .then(tops => (
+                tops[Math.floor(Math.random() * tops.length)]
+            ))
     }
 
     searchMovie = async (query: string): Promise<Movie[]> => {
@@ -104,6 +114,19 @@ export default class Core {
             .then(movies => (
                 movies.filter(movie => movie.vote_count > 100)
             ))
+    }
+
+    topRated = async (): Promise<Movie[]> => {
+        return Promise.all(Array.from(Array(24).keys())
+            .map(page => (
+                this.get(`/movie/top_rated?page=${page + 1}`)
+                    .then(response => (
+                        response.data.results as Movie[]
+                    ))
+            ))).then(movies => (
+                movies.flat()
+            )
+        )
     }
 
     get = async (url: string): Promise<AxiosResponse> => {

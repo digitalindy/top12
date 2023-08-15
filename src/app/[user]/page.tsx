@@ -4,21 +4,19 @@ import React, {useEffect, useState} from "react";
 import NextLink from 'next/link'
 import {getUser} from "@/app/server/bridge";
 import {
-    Alert, AlertIcon,
+    Alert,
+    AlertIcon,
     Box,
     Button,
-    Card,
-    CardBody,
-    CardFooter, Center,
+    Center,
     CircularProgress,
-    Heading, HStack, IconButton,
-    Image,
+    Divider,
+    Heading,
+    HStack,
     Link,
-    Stack,
-    Text,
     VStack
 } from '@chakra-ui/react'
-import {FiArrowLeft, FiEdit} from "react-icons/fi";
+import {FiEdit} from "react-icons/fi";
 import {User} from "@/app/server/Core";
 import MovieCard from "@/app/MovieCard";
 
@@ -35,10 +33,23 @@ export default function Edit({params}: {
             })
     }, [params]);
 
+    const honorableBreak = (index: number) => {
+        if (index == 11) {
+            return (
+                <>
+                    <Heading textAlign='left' w="100%" size='sm' my={2}>
+                        Honorable Mentions
+                    </Heading>
+                    <Divider/>
+                </>
+            )
+        }
+    }
+
     if (user == undefined) {
         return (
             <Center m={10}>
-                <CircularProgress isIndeterminate />
+                <CircularProgress isIndeterminate/>
             </Center>
         )
     }
@@ -66,8 +77,14 @@ export default function Edit({params}: {
                 </HStack>
 
                 <Box pt='2' fontSize='sm'>
-                    {user!!.top.map((movie) => (
-                        <MovieCard movie={movie} key={movie.id}/>
+                    <Heading textAlign='left' w="100%" size='sm' my={2}>
+                        Top12
+                    </Heading>
+                    {user!!.top.map((movie, index) => (
+                        <>
+                            <MovieCard movie={movie} key={movie.id}/>
+                            {honorableBreak(index)}
+                        </>
                     ))}
                 </Box>
             </VStack>

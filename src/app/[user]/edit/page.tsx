@@ -1,47 +1,36 @@
 'use client'
 
-import React, {RefObject, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import NextLink from 'next/link'
 import {getUser, search, updateUser} from "@/app/server/bridge";
 import {
     Alert,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
     AlertIcon,
-    Box,
     Button,
-    ButtonGroup,
-    Card,
-    CardBody,
-    CardFooter, Center,
-    CircularProgress, Flex,
-    FocusLock,
-    FormControl,
-    FormLabel,
-    forwardRef,
+    Center,
+    CircularProgress,
+    Divider,
+    Flex,
     Heading,
     HStack,
     IconButton,
     Image,
-    Input,
-    Link, NumberDecrementStepper,
-    NumberIncrementStepper,
-    NumberInput, NumberInputField,
-    NumberInputStepper,
-    Popover,
-    PopoverArrow,
-    PopoverCloseButton,
-    PopoverContent,
-    PopoverTrigger,
-    Stack,
-    Text,
+    Link,
     useDisclosure,
     VStack
 } from '@chakra-ui/react'
-import {FiArrowLeft, FiList, FiX} from "react-icons/fi";
+import {FiArrowLeft, FiX} from "react-icons/fi";
 import {Movie, User} from "@/app/server/Core";
-import {Reorder} from "framer-motion";
+import {Reorder, useDragControls} from "framer-motion";
 import {AutoComplete, AutoCompleteInput, AutoCompleteItem, AutoCompleteList, Item} from "@choc-ui/chakra-autocomplete";
-import {EditIcon} from "@chakra-ui/icons";
 import MovieCard from "@/app/MovieCard";
+import {FaSort} from "react-icons/fa6";
 
 export default function Edit({params}: {
     params: { user: string }
@@ -96,8 +85,8 @@ export default function Edit({params}: {
 
     }, [lastSearch, searching, lastSuccessSearch])
 
-    const addFromAutoComplete = (event: {item: Item}) => {
-        const movie : Movie = event.item.originalValue
+    const addFromAutoComplete = (event: { item: Item }) => {
+        const movie: Movie = event.item.originalValue
 
         user!!.top.unshift(movie)
 
@@ -125,17 +114,91 @@ export default function Edit({params}: {
         setUser(Object.assign({}, user))
     }
 
+    const RemoveWithConfirm = ({movie}: { movie: Movie }) => {
+        const {isOpen, onOpen, onClose} = useDisclosure()
+        const cancelRef = useRef<HTMLButtonElement>(null)
+
+        const removeConfirm = () => {
+            onClose()
+            remove(movie.id)
+        }
+
+        return (
+            <>
+                <IconButton icon={<FiX/>} aria-label="Remove" size='sm' colorScheme='red'
+                            onClick={onOpen}/>
+
+                <AlertDialog
+                    isOpen={isOpen}
+                    leastDestructiveRef={cancelRef}
+                    onClose={onClose}
+                >
+                    <AlertDialogOverlay>
+                        <AlertDialogContent>
+                            <AlertDialogHeader fontSize='sm' fontWeight='bold'>
+                                Remove Movie
+                            </AlertDialogHeader>
+
+                            <AlertDialogBody>
+                                Are you sure?
+                            </AlertDialogBody>
+
+                            <AlertDialogFooter>
+                                <Button ref={cancelRef} onClick={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button colorScheme='red' onClick={removeConfirm} ml={3}>
+                                    Remove
+                                </Button>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialogOverlay>
+                </AlertDialog>
+            </>
+        )
+    }
+
+    const ReorderItem = ({movie}: { movie: Movie }) => {
+        const controls = useDragControls()
+
+        return <Reorder.Item value={movie}
+                             dragListener={false}
+                             dragControls={controls}
+        >
+            <MovieCard movie={movie}>
+                <IconButton icon={<FaSort/>} aria-label="Move" size='sm' mr={3}
+                            style={{touchAction: "none"}}
+                            onPointerDown={(e) => controls.start(e, {snapToCursor: true})}
+                />
+                <RemoveWithConfirm movie={movie}/>
+            </MovieCard>
+        </Reorder.Item>
+    }
+
+    const honorableBreak = (index: number) => {
+        if (index == 11) {
+            return (
+                <>
+                    <Heading textAlign='left' w="100%" size='sm' my={2}>
+                        Honorable Mentions
+                    </Heading>
+                    <Divider/>
+                </>
+            )
+        }
+    }
+
     if (user == undefined) {
         return <Center m={10}>
-            <CircularProgress isIndeterminate />
+            <CircularProgress isIndeterminate/>
         </Center>
     }
 
     return (
         <>
             <VStack>
-                <Alert status='info' m={1}>
-                    <AlertIcon />
+                <Alert status='info' m={1} fontSize='sm'>
+                    <AlertIcon/>
                     Arrange your movies by dragging them!
                 </Alert>
                 <HStack w='100%'>
@@ -163,7 +226,8 @@ export default function Edit({params}: {
                               openOnFocus={lastSuccessSearch != undefined}
                               shouldRenderSuggestions={shouldRender}
                               onSelectOption={addFromAutoComplete}>
-                    <AutoCompleteInput variant="outline" backgroundColor='white' placeholder="Start typing to add a Movie..."  />
+                    <AutoCompleteInput variant="outline" backgroundColor='white'
+                                       placeholder="Start typing to add a Movie..."/>
                     <AutoCompleteList>
                         {searchItems.map((movie, oid) => (
                             <AutoCompleteItem
@@ -177,8 +241,9 @@ export default function Edit({params}: {
                                         alt={movie.title}
                                     />
                                 </Flex>
-                                <Flex w='90%'>
-                                    <Text>{movie.title} ({new Date(movie.release_date).getFullYear()})</Text>
+                                <Flex w='90%' p={3}>
+                                    <Heading
+                                        size='sm'>{movie.title} ({new Date(movie.release_date).getFullYear()})</Heading>
                                 </Flex>
                             </AutoCompleteItem>
                         ))}
@@ -190,13 +255,21 @@ export default function Edit({params}: {
 
                     setUser(Object.assign({}, user))
                 }}>
-                    {user!!.top.map((movie) => (
-                        <Reorder.Item key={movie.id} value={movie}>
-                            <MovieCard movie={movie}>
-                                <IconButton icon={<FiX/>} aria-label="Remove" size='sm'
-                                            onClick={() => remove(movie.id)} />
-                            </MovieCard>
-                        </Reorder.Item>
+                    <Heading textAlign='left' w="100%" size='sm' my={2}>
+                        Top12
+                    </Heading>
+                    {user!!.top.map((movie, index) => (
+                        <>
+                            {/*<ReorderItem key={movie.id} movie={movie}/>*/}
+                            <Reorder.Item key={movie.id} value={movie}>
+                                <MovieCard movie={movie}>
+                                    <IconButton icon={<FiX/>} aria-label="Remove" size='sm'
+                                                onClick={() => remove(movie.id)}/>
+                                </MovieCard>
+                            </Reorder.Item>
+
+                            {honorableBreak(index)}
+                        </>
                     ))}
                 </Reorder.Group>
             </VStack>

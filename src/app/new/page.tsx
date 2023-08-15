@@ -1,24 +1,21 @@
 'use client'
 
-import React, {FormEvent, useEffect, useState} from "react";
-import NextLink from 'next/link'
-import {createUser, getUser} from "@/app/server/bridge";
+import React, {useState} from "react";
+import {createUser} from "@/app/server/bridge";
 import {
     Box,
     Button,
-    Card,
-    CardBody,
-    CardFooter, Center,
-    CircularProgress, FormControl, FormLabel,
-    Heading, HStack, IconButton,
-    Image, Input, InputGroup, InputLeftElement,
-    Link,
-    Stack,
-    Text, useColorModeValue, useToast,
+    FormControl,
+    FormLabel,
+    Heading,
+    Input,
+    InputGroup,
+    InputLeftElement,
+    useColorModeValue,
+    useToast,
     VStack
 } from '@chakra-ui/react'
-import {FiArrowLeft, FiEdit, FiPlus} from "react-icons/fi";
-import {User} from "@/app/server/Core";
+import {FiPlus} from "react-icons/fi";
 import {BsPerson} from "react-icons/bs";
 import {useRouter} from "next/navigation";
 
@@ -62,9 +59,10 @@ export default function New() {
 
                         <InputGroup>
                             <InputLeftElement>
-                                <BsPerson />
+                                <BsPerson/>
                             </InputLeftElement>
-                            <Input type="text" name="name" placeholder="Your Name" onChange={(event) => setName(event.target.value)} />
+                            <Input type="text" name="name" placeholder="Your Name"
+                                   onChange={(event) => setName(event.target.value)}/>
                         </InputGroup>
                     </FormControl>
                     <Button

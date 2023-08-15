@@ -12,14 +12,14 @@ const config = {
     useSystemColorMode: false,
 }
 
-const theme = extendTheme({ config })
+const theme = extendTheme({config})
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({children}: { children: React.ReactNode }) {
     return (
         <CacheProvider>
             <ChakraProvider theme={theme}>
                 <Container maxW='3xl'>
-                    <Header />
+                    <Header/>
                     {children}
                 </Container>
             </ChakraProvider>

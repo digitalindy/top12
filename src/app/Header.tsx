@@ -1,7 +1,8 @@
 'use client'
 
 import {
-    Box, Button,
+    Box,
+    Button,
     Collapse,
     Flex,
     Icon,
@@ -18,11 +19,11 @@ import {
 } from '@chakra-ui/react'
 import {ChevronDownIcon, ChevronRightIcon, CloseIcon, HamburgerIcon,} from '@chakra-ui/icons'
 import NextLink from "next/link";
-import {FiEdit, FiPlus} from "react-icons/fi";
+import {FiPlus} from "react-icons/fi";
 import React from "react";
 
 export default function Header() {
-    const { isOpen, onToggle } = useDisclosure()
+    const {isOpen, onToggle} = useDisclosure()
 
     return (
         <Box>
@@ -30,34 +31,34 @@ export default function Header() {
                 bg={useColorModeValue('white', 'gray.800')}
                 color={useColorModeValue('gray.600', 'white')}
                 minH={'60px'}
-                py={{ base: 2 }}
-                px={{ base: 4 }}
+                py={{base: 2}}
+                px={{base: 4}}
                 borderBottom={1}
                 borderStyle={'solid'}
                 borderColor={useColorModeValue('gray.200', 'gray.900')}
                 align={'center'}>
                 <Flex
-                    flex={{ base: 1, md: 'auto' }}
-                    ml={{ base: -2 }}
-                    display={{ base: 'flex', md: 'none' }}>
+                    flex={{base: 1, md: 'auto'}}
+                    ml={{base: -2}}
+                    display={{base: 'flex', md: 'none'}}>
                     <IconButton
                         onClick={onToggle}
-                        icon={isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />}
+                        icon={isOpen ? <CloseIcon w={3} h={3}/> : <HamburgerIcon w={5} h={5}/>}
                         variant={'ghost'}
                         aria-label={'Toggle Navigation'}
                     />
                 </Flex>
-                <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
+                <Flex flex={{base: 1}} justify={{base: 'center', md: 'start'}}>
                     <Link as={NextLink} href="/">
-                        <Image h="6" alt="Top12" src={'/logo.svg'} />
+                        <Image h="6" alt="Top12" src={'/logo.svg'}/>
                     </Link>
 
-                    <Flex display={{ base: 'none', md: 'flex' }} ml={5}>
-                        <DesktopNav />
+                    <Flex display={{base: 'none', md: 'flex'}} ml={5}>
+                        <DesktopNav/>
                     </Flex>
                 </Flex>
                 <Stack
-                    flex={{ base: 1, md: 0 }}
+                    flex={{base: 1, md: 0}}
                     justify={'flex-end'}
                     direction={'row'}
                     spacing={6}>
@@ -66,16 +67,16 @@ export default function Header() {
                             as='a'
                             fontSize='sm'
                             fontWeight={400}
-                            aria-label='New'
+                            aria-label='New List'
                             leftIcon={<FiPlus/>}>
-                            New
+                            New List
                         </Button>
                     </Link>
                 </Stack>
             </Flex>
 
             <Collapse in={isOpen} animateOpacity>
-                <MobileNav />
+                <MobileNav/>
             </Collapse>
         </Box>
     )
@@ -129,7 +130,7 @@ const DesktopNav = () => {
     )
 }
 
-const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
+const DesktopSubNav = ({label, href, subLabel}: NavItem) => {
     return (
         <Box
             as="a"
@@ -138,12 +139,12 @@ const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
             display={'block'}
             p={2}
             rounded={'md'}
-            _hover={{ bg: useColorModeValue('blue.50', 'gray.900') }}>
+            _hover={{bg: useColorModeValue('blue.50', 'gray.900')}}>
             <Stack direction={'row'} align={'center'}>
                 <Box>
                     <Text
                         transition={'all .3s ease'}
-                        _groupHover={{ color: 'blue.400' }}
+                        _groupHover={{color: 'blue.400'}}
                         fontWeight={500}>
                         {label}
                     </Text>
@@ -153,11 +154,11 @@ const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
                     transition={'all .3s ease'}
                     transform={'translateX(-10px)'}
                     opacity={0}
-                    _groupHover={{ opacity: '100%', transform: 'translateX(0)' }}
+                    _groupHover={{opacity: '100%', transform: 'translateX(0)'}}
                     justify={'flex-end'}
                     align={'center'}
                     flex={1}>
-                    <Icon color={'blue.400'} w={5} h={5} as={ChevronRightIcon} />
+                    <Icon color={'blue.400'} w={5} h={5} as={ChevronRightIcon}/>
                 </Flex>
             </Stack>
         </Box>
@@ -166,7 +167,7 @@ const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
 
 const MobileNav = () => {
     return (
-        <Stack bg={useColorModeValue('white', 'gray.800')} p={4} display={{ md: 'none' }}>
+        <Stack bg={useColorModeValue('white', 'gray.800')} p={4} display={{md: 'none'}}>
             {NAV_ITEMS.map((navItem) => (
                 <MobileNavItem key={navItem.label} {...navItem} />
             ))}
@@ -174,8 +175,8 @@ const MobileNav = () => {
     )
 }
 
-const MobileNavItem = ({ label, children, href }: NavItem) => {
-    const { isOpen, onToggle } = useDisclosure()
+const MobileNavItem = ({label, children, href}: NavItem) => {
+    const {isOpen, onToggle} = useDisclosure()
 
     return (
         <Stack spacing={4} onClick={children && onToggle}>
@@ -202,7 +203,7 @@ const MobileNavItem = ({ label, children, href }: NavItem) => {
                 )}
             </Box>
 
-            <Collapse in={isOpen} animateOpacity style={{ marginTop: '0!important' }}>
+            <Collapse in={isOpen} animateOpacity style={{marginTop: '0!important'}}>
                 <Stack
                     mt={2}
                     pl={4}
@@ -231,7 +232,7 @@ interface NavItem {
 
 const NAV_ITEMS: Array<NavItem> = [
     {
-        label: 'Home',
+        label: 'Friends',
         href: '/',
     },
     // {
@@ -249,13 +250,13 @@ const NAV_ITEMS: Array<NavItem> = [
     //         },
     //     ],
     // },
-            {
-                label: 'Top Rated',
-                href: '#',
-            },
+    {
+        label: 'Top Rated',
+        href: '/top',
+    },
     {
         label: 'Random Friend Pick',
-        href: '#',
+        href: '/random',
     },
 ]
 

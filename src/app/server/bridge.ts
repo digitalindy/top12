@@ -2,6 +2,10 @@
 
 import Core, {User} from "@/app/server/Core";
 
+export async function listUsers() {
+    return Core.instance.listUsers()
+}
+
 export async function getUser(id: string) {
     return Core.instance.getUser(id)
 }
@@ -16,5 +20,13 @@ export async function updateUser(user: User) {
 
 export async function createUser(name: string) {
     return Core.instance.createUser(name)
+}
+
+export async function topRated() {
+    return Core.instance.topRated()
+}
+
+export async function randomPick() {
+    return Core.instance.randomPick()
 }
 
