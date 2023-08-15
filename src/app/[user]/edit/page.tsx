@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import NextLink from 'next/link'
-import {getUser, search, updateUser} from "@/app/server/bridge";
+import {getUser, searchMovie, updateUser} from "@/app/server/bridge";
 import {
     Alert,
     AlertDialog,
@@ -36,11 +36,14 @@ import {Movie, User} from "@/app/server/Core";
 import {Reorder, useDragControls} from "framer-motion";
 import {AutoComplete, AutoCompleteInput, AutoCompleteItem, AutoCompleteList, Item} from "@choc-ui/chakra-autocomplete";
 import MovieCard from "@/app/MovieCard";
-import {FaArrowLeft, FaSort, FaTrash} from "react-icons/fa6";
+import {FaArrowDownLong, FaArrowLeft, FaSort, FaTrash} from "react-icons/fa6";
 import {BsPerson} from "react-icons/bs";
 import {PHILOSOPHY_PLACEHOLDER} from "@/app/server/etc";
 
-const ReorderItem = ({movie, onRemove}: { movie: Movie, onRemove: (movie: Movie) => void }) => {
+const ReorderItem = ({movie, onRemove, sendToBottom}: {
+    movie: Movie,
+    onRemove: (movie: Movie) => void,
+                     sendToBottom: (movie: Movie) => void}) => {
     const controls = useDragControls()
 
     const {isOpen, onOpen, onClose} = useDisclosure()
@@ -58,10 +61,15 @@ const ReorderItem = ({movie, onRemove}: { movie: Movie, onRemove: (movie: Movie)
                          dragControls={controls}
     >
         <MovieCard movie={movie}>
-            <IconButton icon={<FaSort/>} aria-label="Move" size='sm' mr={3}
-                        style={{touchAction: "none"}}
-                        onPointerDown={(e) => controls.start(e, {snapToCursor: true})}
-            />
+            <VStack>
+                <IconButton icon={<FaSort/>} aria-label="Move" size='sm' mr={3}
+                            style={{touchAction: "none"}}
+                            onPointerDown={(e) => controls.start(e, {snapToCursor: true})}
+                />
+                <IconButton icon={<FaArrowDownLong/>} aria-label="Send to Bottom" size='sm' mr={3}
+                            onClick={() => sendToBottom(movie)}
+                />
+            </VStack>
             <IconButton icon={<FaTrash/>} aria-label="Remove" size='sm' colorScheme='red'
                         onClick={onOpen}/>
 
@@ -103,14 +111,16 @@ export default function Edit({params}: {
 
     const [searchItems, setSearchItems] = useState<Movie[]>([]);
 
-    const [lastSearch, setLastSearch] = useState<string>()
-    const [lastSuccessSearch, setLastSuccessSearch] = useState<string>()
+    const [search, setSearch] = useState<string>()
+    const [lastSeaerch, setLastSearch] = useState<string>()
     const [searching, setSearching] = useState<boolean>(false)
 
     const [top, setTop] = useState<Movie[]>()
 
     const [saving, setSaving] = useState<boolean>(false)
     const [saved, setSaved] = useState<boolean>(false)
+
+    const [lastSaved, setLastSaved] = useState<User>()
 
     useEffect(() => {
         getUser(params.user)
@@ -120,6 +130,7 @@ export default function Edit({params}: {
                 }
                 setTop(user.top)
                 setUser(user)
+                setLastSaved(user)
             })
     }, [params]);
 
@@ -135,42 +146,47 @@ export default function Edit({params}: {
     }, [top, user])
 
     useEffect(() => {
-        if (user) {
+        if (!saved && !saving && user && JSON.stringify(user) != JSON.stringify(lastSaved)) {
+            console.log(`${user.philosophy}`)
             setSaving(true)
             updateUser(user)
                 .then(() => {
-                    setSaving(false)
+
                     setSaved(true)
+                    setSaving(false)
+                    setLastSaved(user)
+
+                    //delay until next save attempt
                     setTimeout(() => {
+                        //show saved message for this long
                         setSaved(false)
                     }, 4000)
                 })
         }
 
-    }, [user])
+    }, [user, lastSaved, saving, saved])
 
     useEffect(() => {
-        if (searching || lastSuccessSearch == lastSearch) {
+        if (searching || lastSeaerch == search) {
             return
         }
 
         setSearching(true)
 
-        const searchy = lastSearch!!
+        const searchy = search!!
 
         console.log(searchy)
-        search(searchy)
+        searchMovie(searchy)
             .then((movies) => {
-                console.log(movies)
                 setSearchItems(movies)
-                setLastSuccessSearch(searchy)
+                setLastSearch(searchy)
 
                 setTimeout(() => {
                     setSearching(false)
                 }, 200)
             })
 
-    }, [lastSearch, searching, lastSuccessSearch])
+    }, [search, searching, lastSeaerch])
 
     const addFromAutoComplete = (event: { item: Item }) => {
         const movie: Movie = event.item.originalValue
@@ -197,6 +213,12 @@ export default function Edit({params}: {
 
     const remove = (movie: Movie) => {
         setTop(top!!.filter(m => m.id != movie.id))
+    }
+
+    const sendToBottom = (movie: Movie) => {
+        const removed = top!!.filter(m => m.id != movie.id)
+        removed.push(movie)
+        setTop(removed)
     }
 
     const honorableBreak = (index: number) => {
@@ -278,13 +300,14 @@ export default function Edit({params}: {
                 <FormControl>
                     <FormLabel>Movies</FormLabel>
                     <InputGroup>
+                        <VStack>
                         <AutoComplete freeSolo
                                       restoreOnBlurIfEmpty={false}
                                       isLoading={searching}
                                       filter={filterOutTop}
                                       multiple
                                       closeOnSelect={true}
-                                      openOnFocus={lastSuccessSearch != undefined}
+                                      openOnFocus={lastSeaerch != undefined}
                                       shouldRenderSuggestions={shouldRender}
                                       onSelectOption={addFromAutoComplete}>
                             <AutoCompleteInput variant="outline" backgroundColor='white'
@@ -313,21 +336,23 @@ export default function Edit({params}: {
                                 ))}
                             </AutoCompleteList>
                         </AutoComplete>
+
+                        <Reorder.Group style={{listStyle: 'none'}} axis="y" values={top!!} onReorder={setTop}>
+                            <Heading textAlign='left' w="100%" size='sm' my={2}>
+                                Top12
+                            </Heading>
+                            {top!!.map((movie, index) => (
+                                <div key={movie.id}>
+                                    <ReorderItem movie={movie} onRemove={remove} sendToBottom={sendToBottom}/>
+
+                                    {honorableBreak(index)}
+                                </div>
+                            ))}
+                        </Reorder.Group>
+                        </VStack>
                     </InputGroup>
                 </FormControl>
             </VStack>
-            <Reorder.Group style={{listStyle: 'none'}} axis="y" values={top!!} onReorder={setTop}>
-                <Heading textAlign='left' w="100%" size='sm' my={2}>
-                    Top12
-                </Heading>
-                {top!!.map((movie, index) => (
-                    <div key={movie.id}>
-                        <ReorderItem movie={movie} onRemove={remove}/>
-
-                        {honorableBreak(index)}
-                    </div>
-                ))}
-            </Reorder.Group>
 
         </>
     )

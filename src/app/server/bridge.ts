@@ -10,7 +10,7 @@ export async function getUser(id: string) {
     return Core.instance.getUser(id)
 }
 
-export async function search(query: string) {
+export async function searchMovie(query: string) {
     return Core.instance.searchMovie(query)
 }
 

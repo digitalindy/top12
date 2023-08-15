@@ -1,7 +1,7 @@
 import 'server-only'
 
 import {AxiosResponse} from "axios";
-import {Collection, InsertOneResult, MongoClient, ObjectId, OptionalId, WithId} from "mongodb";
+import {Collection, InsertManyResult, InsertOneResult, MongoClient, ObjectId, OptionalId, WithId} from "mongodb";
 
 export interface User {
     id: string,
@@ -28,6 +28,7 @@ export default class Core {
     private axios = require('axios').default;
 
     private users: Collection<Document> | undefined = undefined
+    private topRatedc: Collection<Document> | undefined = undefined
 
     constructor() {
     }
@@ -42,6 +43,7 @@ export default class Core {
 
         const database = client.db("top12");
         this.users = database!!.collection("users");
+        this.topRatedc = database!!.collection("top_rated");
     }
 
     toUser = (doc: WithId<Document> | null): User => {
@@ -102,12 +104,19 @@ export default class Core {
         return this.users!!.findOne(this.userFilter(id)).then(this.toUser)
     }
 
-    randomPick = async () => {
+    randomPick = async (): Promise<{movie: Movie, name: string}> => {
+        await this.setup()
+
         return this.listUsers()
-            .then(users => users.map(user => user.top))
-            .then(moviess => moviess.flat())
-            .then(tops => (
-                tops[Math.floor(Math.random() * tops.length)]
+            .then(users => users.map(user => ({top: user.top, name: user.name})))
+            .then(users => (
+                users[Math.floor(Math.random() * users.length)]
+            ))
+            .then(user => (
+                {
+                    movie: user.top[Math.floor(Math.random() * user.top.length)],
+                    name: user.name
+                }
             ))
     }
 
@@ -122,16 +131,25 @@ export default class Core {
     }
 
     topRated = async (): Promise<Movie[]> => {
-        return Promise.all(Array.from(Array(24).keys())
-            .map(page => (
-                this.get(`/movie/top_rated?page=${page + 1}`)
-                    .then(response => (
-                        response.data.results as Movie[]
-                    ))
-            ))).then(movies => (
-                movies.flat()
+        await this.setup()
+
+        if (await this.topRatedc?.countDocuments() == 0) {
+            const top = await Promise.all(Array.from(Array(50).keys())
+                .map(page => (
+                    this.get(`/movie/top_rated?region=US&page=${page + 1}`)
+                        .then(response => (
+                            response.data.results as Movie[]
+                        ))
+                ))).then(movies => (
+                    movies.flat()
+                )
             )
-        )
+
+            await this.topRatedc!!.insertMany(top.map(movie => movie as unknown as Document))
+        }
+
+        return this.topRatedc!!.find().toArray()
+            .then(movies => movies.map(movie => movie as unknown as Movie))
     }
 
     get = async (url: string): Promise<AxiosResponse> => {

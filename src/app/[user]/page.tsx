@@ -81,13 +81,11 @@ export default function Edit({params}: {
                     <Heading size='sm'>
                         Philosophy
                     </Heading>
-                    {/*<Box backgroundColor='white'>*/}
-                    <Text pt='2' backgroundColor='white' p={3} mt={3}
+                    <Text as='pre' pt='2' backgroundColor='white' p={3} mt={3}
                           rounded='lg'
                           fontSize='sm'>
                         {user.philosophy}
                     </Text>
-                    {/*</Box>*/}
                 </Box>
 
                 <Box pt='2' fontSize='sm'>
@@ -95,10 +93,10 @@ export default function Edit({params}: {
                         Top12
                     </Heading>
                     {user!!.top.map((movie, index) => (
-                        <>
-                            <MovieCard movie={movie} key={movie.id}/>
+                        <div key={movie.id}>
+                            <MovieCard movie={movie}/>
                             {honorableBreak(index)}
-                        </>
+                        </div>
                     ))}
                 </Box>
             </VStack>
