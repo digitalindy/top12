@@ -1,15 +1,15 @@
 import 'server-only'
 
-import UsersList from "@/app/UsersList";
-import Core from "@/app/core/Core";
+import Core from "@/app/server/Core";
+import Home from "@/app/Home";
 
-export default async function Home() {
+export default async function Index() {
 
     const allUsers = await Core.instance.listUsers()
 
     return (
         <>
-            <UsersList users={allUsers} />
+            <Home users={allUsers} />
         </>
     )
 }
