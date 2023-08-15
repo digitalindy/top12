@@ -252,7 +252,7 @@ const NAV_ITEMS: Array<NavItem> = [
     //     ],
     // },
     {
-        label: 'Top Rated',
+        label: 'Top 1000',
         href: '/top',
     },
     {
