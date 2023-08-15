@@ -122,9 +122,9 @@ export default class Core {
 
     searchMovie = async (query: string): Promise<Movie[]> => {
         return this.get("/search/movie?query=" + query)
-            .then(response => (
-                response.data.results as Movie[]
-            ))
+            .then(response => {
+                return response.data.results as Movie[]
+            })
             .then(movies => (
                 movies.filter(movie => movie.vote_count > 100)
             ))

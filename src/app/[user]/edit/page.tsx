@@ -114,6 +114,7 @@ export default function Edit({params}: {
     const [search, setSearch] = useState<string>()
     const [lastSearch, setLastSearch] = useState<string>()
     const [searching, setSearching] = useState<boolean>(false)
+    const [canSearch, setCanSearch] = useState<boolean>(true)
 
     const [top, setTop] = useState<Movie[]>()
 
@@ -166,25 +167,28 @@ export default function Edit({params}: {
     }, [user, lastSaved, saving, saved])
 
     useEffect(() => {
-        if (!search || searching || lastSearch == search) {
+        if (!canSearch || !search || lastSearch == search) {
             return
         }
 
         setSearching(true)
+        setCanSearch(false)
 
         const searchy = search
 
         searchMovie(searchy)
             .then((movies) => {
+                console.log(`setting: ${movies.length}`)
                 setSearchItems(movies)
                 setLastSearch(searchy)
+                setSearching(false)
 
                 setTimeout(() => {
-                    setSearching(false)
+                    setCanSearch(true)
                 }, 200)
             })
 
-    }, [search, searching, lastSearch])
+    }, [search, canSearch, lastSearch])
 
     const addFromAutoComplete = (event: { item: Item }) => {
         const movie: Movie = event.item.originalValue
