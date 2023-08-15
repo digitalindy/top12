@@ -83,6 +83,7 @@ export default function Edit({params}: {
                     </Heading>
                     <Text as='pre' pt='2' backgroundColor='white' p={3} mt={3}
                           rounded='lg'
+                          whiteSpace='break-spaces'
                           fontSize='sm'>
                         {user.philosophy}
                     </Text>

@@ -147,7 +147,6 @@ export default function Edit({params}: {
 
     useEffect(() => {
         if (!saved && !saving && user && JSON.stringify(user) != JSON.stringify(lastSaved)) {
-            console.log(`${user.philosophy}`)
             setSaving(true)
             updateUser(user)
                 .then(() => {

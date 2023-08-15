@@ -43,7 +43,7 @@ export default function Index() {
             {users.map((user) => (
                 <Flex key={`${user.id}`} direction='column'>
                     <Heading size='md' mt={3}>
-                        <Link as={NextLink} href={`/${user.id}`}>
+                        <Link as={NextLink} href={`/${user.id}`} textDecoration='underline'>
                             {`${user.name}'s Top 12`}
                         </Link>
                     </Heading>
@@ -56,7 +56,7 @@ export default function Index() {
                                 overflow='hidden'
                                 mb={1}
                                 mr={1}
-                                w={118}
+                                w={{base: 110, sm: 118}}
                             >
                                 <Image
                                     objectFit='contain'
