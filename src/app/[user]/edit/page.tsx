@@ -166,15 +166,14 @@ export default function Edit({params}: {
     }, [user, lastSaved, saving, saved])
 
     useEffect(() => {
-        if (searching || lastSearch == search) {
+        if (!search || searching || lastSearch == search) {
             return
         }
 
         setSearching(true)
 
-        const searchy = search!!
+        const searchy = search
 
-        console.log(searchy)
         searchMovie(searchy)
             .then((movies) => {
                 setSearchItems(movies)
