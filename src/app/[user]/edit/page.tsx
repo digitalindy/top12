@@ -181,7 +181,6 @@ export default function Edit({params}: {
 
         searchMovie(searchy)
             .then((movies) => {
-                console.log(`setting: ${movies.length}`)
                 setSearchItems(movies)
                 setLastSearch(searchy)
                 setSearching(false)

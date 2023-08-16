@@ -256,7 +256,11 @@ const NAV_ITEMS: Array<NavItem> = [
         href: '/top',
     },
     {
-        label: 'Random Friend Pick',
+        label: 'Friend Picks',
+        href: '/picks',
+    },
+    {
+        label: 'Random Pick',
         href: '/random',
     },
 ]

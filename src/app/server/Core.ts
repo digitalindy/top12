@@ -21,6 +21,11 @@ export interface Movie {
     vote_average: number
 }
 
+export interface Pick {
+    movie: Movie,
+    users: User[]
+}
+
 require('axios-debug-log/enable')
 
 export default class Core {
@@ -122,6 +127,29 @@ export default class Core {
                     movie: user.top[Math.floor(Math.random() * user.top.length)],
                     name: user.name
                 }
+            ))
+    }
+
+    topPicks = async (): Promise<Pick[]> => {
+        await this.setup()
+
+        return this.listUsers()
+            .then(users => users.map(user => ({top: user.top, name: user})))
+            .then(users => (
+                users.flatMap(user => (
+                    user.top.map(movie => ({ movie: movie, users: [user.name] }))
+                ))
+                    .sort((a, b) => a.movie.id - b.movie.id)
+                    .reduce<Pick[]>((previousValue, currentValue) => {
+                            if (previousValue.length > 0 && previousValue[previousValue.length - 1].movie.id == currentValue.movie.id) {
+                                return [{ movie: currentValue.movie, users: [...previousValue.pop()!!.users, ...currentValue.users]}, ...previousValue]
+                            }
+
+                            return [...previousValue, currentValue]
+                        }, [])
+                    .flat()
+                    .sort((a, b) => b.users.length - a.users.length)
+                    .filter(pick => pick.users.length > 1)
             ))
     }
 

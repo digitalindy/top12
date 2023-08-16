@@ -30,3 +30,6 @@ export async function randomPick() {
     return Core.instance.randomPick()
 }
 
+export async function topPicks() {
+    return Core.instance.topPicks()
+}
