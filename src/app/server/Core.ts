@@ -54,7 +54,7 @@ export default class Core {
             id: doc!!._id.toHexString(),
             name: casted.name,
             philosophy: casted.philosophy,
-            top: casted.top.sort((a, b) => a.order - b.order)
+            top: casted.top?.sort((a, b) => a.order - b.order)
         }
     }
 
