@@ -40,11 +40,11 @@ export default function Picks() {
             <Heading w='100%' size='md' my={3}>
                 Friends Most Recommended
             </Heading>
-            {picks.map((pick, index) => (
+            {picks.map((pick) => (
                 <Box key={pick.movie.id} my={4}>
                     <MovieCard movie={pick.movie}/>
                     {pick.users.map((user) => (
-                        <Link as={NextLink} key={user.id} href="/">
+                        <Link as={NextLink} key={user.id} href={`/${user.id}`}>
                         <Tag size={'sm'} mr={3} variant='outline' colorScheme='blue'>
                             <TagLeftIcon as={FaRectangleList} />
                             <TagLabel>

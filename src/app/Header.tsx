@@ -252,16 +252,16 @@ const NAV_ITEMS: Array<NavItem> = [
     //     ],
     // },
     {
-        label: 'Top 1000',
-        href: '/top',
-    },
-    {
         label: 'Friend Picks',
         href: '/picks',
     },
     {
         label: 'Random Pick',
         href: '/random',
+    },
+    {
+        label: 'Top 1000',
+        href: '/top',
     },
 ]
 
