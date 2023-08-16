@@ -12,11 +12,13 @@ export interface User {
 
 export interface Movie {
     id: number
+    order: number
     title: string
     release_date: string
     overview: string
     poster_path: string
     vote_count: number
+    vote_average: number
 }
 
 require('axios-debug-log/enable')
@@ -52,7 +54,7 @@ export default class Core {
             id: doc!!._id.toHexString(),
             name: casted.name,
             philosophy: casted.philosophy,
-            top: casted.top
+            top: casted.top.sort((a, b) => a.order - b.order)
         }
     }
 
@@ -93,7 +95,10 @@ export default class Core {
             $set: {
                 name: user.name,
                 philosophy: user.philosophy,
-                top: user.top
+                top: user.top.map((movie, index) => {
+                    movie.order = index
+                    return movie
+                })
             }
         })
     }
@@ -121,13 +126,16 @@ export default class Core {
     }
 
     searchMovie = async (query: string): Promise<Movie[]> => {
-        return this.get("/search/movie?query=" + query)
-            .then(response => {
-                return response.data.results as Movie[]
-            })
-            .then(movies => (
-                movies.filter(movie => movie.vote_count > 100)
-            ))
+        return Promise.all(Array.from(Array(2).keys())
+            .map(page => (
+                this.get(`/search/movie?page=${page + 1}&query=` + query)
+                    .then(response => {
+                        return response.data.results as Movie[]
+                    })
+                    .then(movies => (
+                        movies.filter(movie => movie.vote_count > 100)
+                    ))
+            ))).then(movies => movies.flat())
     }
 
     topRated = async (): Promise<Movie[]> => {
@@ -153,6 +161,11 @@ export default class Core {
                 delete (movie as any)['_id']
                 return movie as unknown as Movie
             }))
+            .then(movies => {
+                return movies.sort((a, b) => (
+                    b.vote_average - a.vote_average
+                ))
+            })
     }
 
     get = async (url: string): Promise<AxiosResponse> => {

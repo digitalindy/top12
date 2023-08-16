@@ -64,7 +64,10 @@ const ReorderItem = ({movie, onRemove, sendToBottom}: {
             <VStack>
                 <IconButton icon={<FaSort/>} aria-label="Move" size='sm' mr={3}
                             style={{touchAction: "none"}}
-                            onPointerDown={(e) => controls.start(e, {snapToCursor: true})}
+                            onPointerDown={(e) => {
+                                controls.start(e, {snapToCursor: true})
+                                e.stopPropagation()
+                            }}
                 />
                 <IconButton icon={<FaArrowDownLong/>} aria-label="Send to Bottom" size='sm' mr={3}
                             onClick={() => sendToBottom(movie)}
@@ -304,12 +307,11 @@ export default function Edit({params}: {
                     <InputGroup>
                         <VStack w='100%'>
                         <AutoComplete freeSolo
-                                      restoreOnBlurIfEmpty={false}
                                       isLoading={searching}
                                       filter={filterOutTop}
                                       multiple
                                       closeOnSelect={true}
-                                      openOnFocus={lastSearch != undefined}
+                                      openOnFocus={false}
                                       shouldRenderSuggestions={shouldRender}
                                       onSelectOption={addFromAutoComplete}>
                             <AutoCompleteInput variant="outline" backgroundColor='white'
@@ -323,7 +325,7 @@ export default function Edit({params}: {
                                         <Flex w='10%'>
                                             <Image
                                                 objectFit='contain'
-                                                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                                                src={`https://image.tmdb.org/t/p/w154${movie.poster_path}`}
                                                 alt={movie.title}
                                             />
                                         </Flex>

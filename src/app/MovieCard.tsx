@@ -17,7 +17,7 @@ export default function MovieCard({movie, children}: { movie: Movie, children?: 
             <Flex w={{base: '20%', sm: '10%'}}>
                 <Image
                     objectFit='contain'
-                    src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                    src={`https://image.tmdb.org/t/p/w154${movie.poster_path}`}
                     alt={movie.title}
                 />
             </Flex>
