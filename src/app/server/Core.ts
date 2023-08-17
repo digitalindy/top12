@@ -161,7 +161,7 @@ export default class Core {
                         return response.data.results as Movie[]
                     })
                     .then(movies => (
-                        movies.filter(movie => movie.vote_count > 100)
+                        movies.filter(movie => movie.vote_count > 50)
                     ))
             ))).then(movies => movies.flat())
     }
