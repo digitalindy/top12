@@ -114,25 +114,16 @@ export default class Core {
         return this.users!!.findOne(this.userFilter(id)).then(this.toUser)
     }
 
-    randomPick = async (): Promise<{movie: Movie, name: string}> => {
+    randomPick = async (): Promise<Pick> => {
         await this.setup()
 
-        return this.listUsers()
-            .then(users => users.map(user => ({top: user.top, name: user.name})))
-            .then(users => (
-                users[Math.floor(Math.random() * users.length)]
-            ))
-            .then(user => (
-                {
-                    movie: user.top[Math.floor(Math.random() * user.top.length)],
-                    name: user.name
-                }
+        return this.picks()
+            .then(picks => (
+                picks[Math.floor(Math.random() * picks.length)]
             ))
     }
 
-    topPicks = async (): Promise<Pick[]> => {
-        await this.setup()
-
+    picks = async (): Promise<Pick[]> => {
         return this.listUsers()
             .then(users => users.map(user => ({top: user.top, name: user})))
             .then(users => (
@@ -141,16 +132,22 @@ export default class Core {
                 ))
                     .sort((a, b) => a.movie.id - b.movie.id)
                     .reduce<Pick[]>((previousValue, currentValue) => {
-                            if (previousValue.length > 0 && previousValue[previousValue.length - 1].movie.id == currentValue.movie.id) {
-                                return [{ movie: currentValue.movie, users: [...previousValue.pop()!!.users, ...currentValue.users]}, ...previousValue]
-                            }
+                        if (previousValue.length > 0 && previousValue[previousValue.length - 1].movie.id == currentValue.movie.id) {
+                            return [{ movie: currentValue.movie, users: [...previousValue.pop()!!.users, ...currentValue.users]}, ...previousValue]
+                        }
 
-                            return [...previousValue, currentValue]
-                        }, [])
+                        return [...previousValue, currentValue]
+                    }, [])
                     .flat()
                     .sort((a, b) => b.users.length - a.users.length)
-                    .filter(pick => pick.users.length > 1)
             ))
+    }
+
+    topPicks = async (): Promise<Pick[]> => {
+        await this.setup()
+
+        return this.picks()
+            .then(picks => picks.filter(pick => pick.users.length > 1))
     }
 
     searchMovie = async (query: string): Promise<Movie[]> => {

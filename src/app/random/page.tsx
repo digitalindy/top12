@@ -1,25 +1,26 @@
 'use client'
 
-import {Movie} from "@/app/server/Core";
+import {Movie, Pick} from "@/app/server/Core";
 import {
     Box,
     Button,
     Center,
     CircularProgress,
-    Heading,
+    Heading, Link,
     Popover,
     PopoverArrow, PopoverBody, PopoverCloseButton,
     PopoverContent, PopoverHeader,
-    PopoverTrigger
+    PopoverTrigger, Tag, TagLabel, TagLeftIcon
 } from "@chakra-ui/react";
 import MovieCard from "@/app/MovieCard";
 import React, {useEffect, useState} from "react";
 import {randomPick} from "@/app/server/bridge";
-import {FaArrowDown, FaUserGroup} from "react-icons/fa6";
+import {FaArrowDown, FaRectangleList, FaUserGroup} from "react-icons/fa6";
+import NextLink from "next/link";
 
 export default function TopRated() {
 
-    const [pick, setPick] = useState<{movie: Movie, name: string}>()
+    const [pick, setPick] = useState<Pick>()
 
     useEffect(() => {
         randomPick()
@@ -50,7 +51,17 @@ export default function TopRated() {
                     <PopoverArrow />
                     <PopoverCloseButton />
                     <PopoverBody p={4}>
-                        Thank {pick.name} for the recommendation!
+                        Thank these friends for the recommendation:
+                        {pick.users.map((user) => (
+                            <Link as={NextLink} key={user.id} href={`/${user.id}`}>
+                                <Tag size={'sm'} ml={3} variant='outline' colorScheme='blue'>
+                                    <TagLeftIcon as={FaRectangleList} />
+                                    <TagLabel>
+                                        {user.name}
+                                    </TagLabel>
+                                </Tag>
+                            </Link>
+                        ))}
                     </PopoverBody>
                 </PopoverContent>
             </Popover>

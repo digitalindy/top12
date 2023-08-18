@@ -321,7 +321,7 @@ export default function Edit({params}: {
                                         key={`option-${oid}`}
                                         value={movie}
                                         getValue={(value: Movie) => `${value.id}:${value.title}:${new Date(value.release_date).getFullYear()}`}>
-                                        <Flex w='10%'>
+                                        <Flex w={{base: '20%', sm: '10%'}}>
                                             <Image
                                                 objectFit='contain'
                                                 src={`https://image.tmdb.org/t/p/w154${movie.poster_path}`}
