@@ -117,15 +117,24 @@ export default class Core {
     randomPick = async (): Promise<Pick> => {
         await this.setup()
 
-        return this.picks()
+        return this.picks(true)
             .then(picks => (
                 picks[Math.floor(Math.random() * picks.length)]
             ))
     }
 
-    picks = async (): Promise<Pick[]> => {
+    picks = async (limit: boolean = false): Promise<Pick[]> => {
         return this.listUsers()
-            .then(users => users.map(user => ({top: user.top, name: user})))
+            .then(users => users.map(user => {
+                if (limit) {
+                    return {
+                        top: user.top.sort( () => Math.random() - 0.5)
+                            .slice(0, 22),
+                        name: user
+                    }
+                }
+                return {top: user.top, name: user}
+            }))
             .then(users => (
                 users.flatMap(user => (
                     user.top.map(movie => ({ movie: movie, users: [user.name] }))
@@ -133,7 +142,7 @@ export default class Core {
                     .sort((a, b) => a.movie.id - b.movie.id)
                     .reduce<Pick[]>((previousValue, currentValue) => {
                         if (previousValue.length > 0 && previousValue[previousValue.length - 1].movie.id == currentValue.movie.id) {
-                            return [{ movie: currentValue.movie, users: [...previousValue.pop()!!.users, ...currentValue.users]}, ...previousValue]
+                            return [...previousValue, { movie: currentValue.movie, users: [...currentValue.users, ...previousValue.pop()!!.users]}]
                         }
 
                         return [...previousValue, currentValue]
