@@ -144,7 +144,8 @@ export default class Core {
                     .sort((a, b) => a.movie.id - b.movie.id)
                     .reduce<Pick[]>((previousValue, currentValue) => {
                         if (previousValue.length > 0 && previousValue[previousValue.length - 1].movie.id == currentValue.movie.id) {
-                            return [...previousValue, { movie: currentValue.movie, users: [...currentValue.users, ...previousValue.pop()!!.users]}]
+                            const popped = previousValue.pop()
+                            return [...previousValue, { movie: currentValue.movie, users: [...currentValue.users, ...popped!!.users]}]
                         }
 
                         return [...previousValue, currentValue]
