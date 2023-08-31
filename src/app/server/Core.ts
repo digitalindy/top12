@@ -125,16 +125,18 @@ export default class Core {
 
     picks = async (limit: boolean = false): Promise<Pick[]> => {
         return this.listUsers()
-            .then(users => users.map(user => {
-                if (limit) {
-                    return {
-                        top: user.top.sort( () => Math.random() - 0.5)
-                            .slice(0, 22),
-                        name: user
+            .then(users => users
+                .filter(user => user.top != undefined)
+                .map(user => {
+                    if (limit) {
+                        return {
+                            top: user.top.sort( () => Math.random() - 0.5)
+                                .slice(0, 22),
+                            name: user
+                        }
                     }
-                }
-                return {top: user.top, name: user}
-            }))
+                    return {top: user.top, name: user}
+                }))
             .then(users => (
                 users.flatMap(user => (
                     user.top.map(movie => ({ movie: movie, users: [user.name] }))
