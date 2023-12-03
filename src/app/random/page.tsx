@@ -53,7 +53,7 @@ export default function TopRated() {
     }
 
     const setAlefire = () => {
-        setSelected(users.filter(user => ['Zack', 'Obrock (Ryan)', 'Jordan’s List', 'Kevin Jones', 'Jack AF', 'Scott'].includes(user.name)))
+        setSelected(users.filter(user => ['Zack', 'Obrock (Ryan)', 'Jordan’s List', 'Kevin Jones', 'Jack AF', 'Scott', 'Carlo'].includes(user.name)))
     }
 
     return (
