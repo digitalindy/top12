@@ -26,8 +26,8 @@ export async function topRated() {
     return Core.instance.topRated()
 }
 
-export async function randomPick() {
-    return Core.instance.randomPick()
+export async function randomPick(selected: User[]) {
+    return Core.instance.randomPick(selected)
 }
 
 export async function topPicks() {

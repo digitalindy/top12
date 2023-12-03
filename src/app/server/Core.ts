@@ -114,19 +114,20 @@ export default class Core {
         return this.users!!.findOne(this.userFilter(id)).then(this.toUser)
     }
 
-    randomPick = async (): Promise<Pick> => {
+    randomPick = async (selected: User[]): Promise<Pick> => {
         await this.setup()
 
-        return this.picks(true)
+        return this.picks(selected, true)
             .then(picks => (
                 picks[Math.floor(Math.random() * picks.length)]
             ))
     }
 
-    picks = async (limit: boolean = false): Promise<Pick[]> => {
+    picks = async (selected: User[], limit: boolean = false): Promise<Pick[]> => {
         return this.listUsers()
             .then(users => users
                 .filter(user => user.top != undefined)
+                .filter(user => selected.find(sel => sel.id == user.id) != undefined)
                 .map(user => {
                     if (limit) {
                         return {
