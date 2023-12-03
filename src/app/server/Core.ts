@@ -123,11 +123,17 @@ export default class Core {
             ))
     }
 
-    picks = async (selected: User[], limit: boolean = false): Promise<Pick[]> => {
+    picks = async (selected: User[] = [], limit: boolean = false): Promise<Pick[]> => {
         return this.listUsers()
             .then(users => users
                 .filter(user => user.top != undefined)
-                .filter(user => selected.find(sel => sel.id == user.id) != undefined)
+                .filter(user => {
+                    if (selected.length == 0) {
+                        return true
+                    }
+
+                    return selected.find(sel => sel.id == user.id) != undefined
+                })
                 .map(user => {
                     if (limit) {
                         return {
