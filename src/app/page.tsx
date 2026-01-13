@@ -1,7 +1,7 @@
 'use client'
 
 import {User} from "@/app/server/Core";
-import {Alert, AlertIcon, Card, CardBody, Center, CircularProgress, Flex, Heading, Image, Link} from "@chakra-ui/react";
+import {Alert, AlertIcon, Card, CardBody, Center, CircularProgress, Flex, Heading, Image, Input, Link} from "@chakra-ui/react";
 import NextLink from "next/link";
 import {useEffect, useState} from "react";
 import {listUsers} from "@/app/server/bridge";
@@ -9,6 +9,7 @@ import {listUsers} from "@/app/server/bridge";
 export default function Index() {
 
     const [users, setUsers] = useState<User[]>()
+    const [filter, setFilter] = useState('')
 
     function shuffle(users: User[]) {
         for (var i = users.length - 1; i > 0; i--) {
@@ -40,7 +41,17 @@ export default function Index() {
                 <AlertIcon boxSize={4}/>
                 Tap a list name for a more detailed view!
             </Alert>
-            {users.map((user) => (
+            <Input
+                placeholder='Filter by name...'
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                m={1}
+                size='sm'
+            />
+            {users
+                .filter(user => user.top.length > 0)
+                .filter((user) => user.name.toLowerCase().includes(filter.toLowerCase()))
+                .map((user) => (
                 <Flex key={`${user.id}`} direction='column'>
                     <Heading size='md' mt={3}>
                         <Link as={NextLink} href={`/${user.id}`} textDecoration='underline'>
