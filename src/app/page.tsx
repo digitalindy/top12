@@ -50,7 +50,7 @@ export default function Index() {
             />
             
             {users
-                .filter(user => user.top.length > 0)
+                .filter(user => user.top?.length > 0)
                 .filter((user) => user.name.toLowerCase().includes(filter.toLowerCase()))
                 .map((user) => (
                 <Flex key={`${user.id}`} direction='column'>
