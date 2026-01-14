@@ -48,6 +48,7 @@ export default function Index() {
                 m={1}
                 size='sm'
             />
+            
             {users
                 .filter(user => user.top.length > 0)
                 .filter((user) => user.name.toLowerCase().includes(filter.toLowerCase()))
