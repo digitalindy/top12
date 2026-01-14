@@ -215,7 +215,7 @@ export default class Core {
     get = async (url: string): Promise<AxiosResponse> => {
         const headers: { [name: string]: string } = {
             'Accept': 'application/json',
-            'Authorization': 'Bearer ${process.env.TMDB_TOKEN}'
+            'Authorization': `Bearer ${process.env.TMDB_TOKEN}`
         }
 
         return this.axios({
