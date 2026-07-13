@@ -1,10 +1,11 @@
 'use client'
 
 import {User} from "@/app/server/Core";
-import {Alert, Card, Center, Flex, Heading, Image, Input, Link, Spinner} from "@chakra-ui/react";
+import {Alert, Card, Center, Flex, Heading, Input, Link, Spinner, Text, VStack} from "@chakra-ui/react";
 import NextLink from "next/link";
 import {useEffect, useState} from "react";
 import {listUsers} from "@/app/server/bridge";
+import Poster from "@/app/Poster";
 
 export default function Index() {
 
@@ -35,9 +36,13 @@ export default function Index() {
         )
     }
 
+    const visibleUsers = users
+        .filter(user => user.top?.length > 0)
+        .filter((user) => user.name.toLowerCase().includes(filter.toLowerCase()))
+
     return (
-        <>
-            <Alert.Root status='info' m={1} fontSize='sm' borderRadius='lg'>
+        <VStack align='stretch' gap={4} py={3}>
+            <Alert.Root status='info' fontSize='sm' borderRadius='lg'>
                 <Alert.Indicator/>
                 <Alert.Content>
                     Tap a list name for a more detailed view!
@@ -47,51 +52,51 @@ export default function Index() {
                 placeholder='Filter by name...'
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                m={1}
                 size='sm'
+                borderRadius='lg'
             />
 
-            {users
-                .filter(user => user.top?.length > 0)
-                .filter((user) => user.name.toLowerCase().includes(filter.toLowerCase()))
-                .map((user) => (
+            {visibleUsers.length === 0 ? (
+                <Center py={10} color='gray.500'>
+                    No lists match &ldquo;{filter}&rdquo;
+                </Center>
+            ) : visibleUsers.map((user) => (
                 <Flex key={`${user.id}`} direction='column'>
-                    <Heading size='md' mt={3}>
-                        <Link asChild textDecoration='underline'>
+                    <Heading size='md' mb={2}>
+                        <Link asChild color='blue.500'>
                             <NextLink href={`/${user.id}`}>
                                 {`${user.name}'s Top 12`}
                             </NextLink>
                         </Link>
                     </Heading>
-                    <Flex pt='2' fontSize='sm' w='100%' flexWrap='wrap'>
-                        {(user.top ? user.top : []).slice(0, 12).map((movie) => (
+                    <Flex fontSize='sm' w='100%' flexWrap='wrap' gap={2}>
+                        {user.top.slice(0, 12).map((movie) => (
                             <Card.Root
                                 key={`mc-${movie.id}`}
                                 flexDirection='column'
                                 variant='outline'
                                 overflow='hidden'
-                                mb={1}
-                                mr={1}
                                 w={{base: 110, sm: 118}}
+                                transition='box-shadow .2s ease'
+                                _hover={{boxShadow: 'md'}}
                             >
-                                <Image
-                                    objectFit='contain'
-                                    src={`https://image.tmdb.org/t/p/w154${movie.poster_path}`}
-                                    alt={movie.title}
-                                />
+                                <Poster movie={movie} width='100%'/>
 
-                                <Card.Body p={0} m={2}>
-                                    <Heading size='sm'>
+                                <Card.Body p={2}>
+                                    <Heading size='xs' lineHeight='short'>
                                         <Link href={`https://www.themoviedb.org/movie/${movie.id}`}>
-                                            {movie.title} ({new Date(movie.release_date).getFullYear()})
+                                            {movie.title}
                                         </Link>
                                     </Heading>
+                                    <Text fontSize='xs' color='gray.500'>
+                                        {new Date(movie.release_date).getFullYear()}
+                                    </Text>
                                 </Card.Body>
                             </Card.Root>
                         ))}
                     </Flex>
                 </Flex>
             ))}
-        </>
+        </VStack>
     )
 }
