@@ -9,11 +9,9 @@ import {
     Center,
     Dialog,
     Field,
-    Flex,
     Heading,
     HStack,
     IconButton,
-    Image,
     Input,
     InputGroup,
     Portal,
@@ -28,6 +26,7 @@ import {Movie, User} from "@/app/server/Core";
 import {Reorder, useDragControls} from "framer-motion";
 import {AutoComplete, AutoCompleteInput, AutoCompleteItem, AutoCompleteList, Item} from "@choc-ui/chakra-autocomplete";
 import MovieCard from "@/app/MovieCard";
+import Poster from "@/app/Poster";
 import {FaArrowDownLong, FaArrowLeft, FaSort, FaTrash} from "react-icons/fa6";
 import {BsPerson} from "react-icons/bs";
 import {PHILOSOPHY_PLACEHOLDER} from "@/app/server/etc";
@@ -317,13 +316,7 @@ export default function Edit(props: {
                                         key={`option-${oid}`}
                                         value={movie}
                                         getValue={(value: Movie) => `${value.id}:${value.title}:${new Date(value.release_date).getFullYear()}`}>
-                                        <Flex w={{base: '20%', sm: '10%'}}>
-                                            <Image
-                                                objectFit='contain'
-                                                src={`https://image.tmdb.org/t/p/w154${movie.poster_path}`}
-                                                alt={movie.title}
-                                            />
-                                        </Flex>
+                                        <Poster movie={movie} width={{base: 56, sm: 64}}/>
                                         <VStack w='90%' p={2}>
                                             <Heading
                                                 w='100%'

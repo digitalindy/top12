@@ -133,21 +133,6 @@ const NAV_ITEMS: Array<NavItem> = [
         label: 'Friends',
         href: '/',
     },
-    // {
-    //     label: 'Inspiration',
-    //     children: [
-    //         {
-    //             label: 'Popular',
-    //             subLabel: 'Top 1000 popular movies',
-    //             href: '#',
-    //         },
-    //         {
-    //             label: 'Top Rated',
-    //             subLabel: 'Top 1000 top rated films',
-    //             href: '#',
-    //         },
-    //     ],
-    // },
     {
         label: 'Friend Picks',
         href: '/picks',
