@@ -1,7 +1,7 @@
 'use client'
 
 import {Movie} from "@/app/server/Core";
-import {Center, CircularProgress, ListItem, OrderedList} from "@chakra-ui/react";
+import {Center, List, Spinner} from "@chakra-ui/react";
 import MovieCard from "@/app/MovieCard";
 import React, {useEffect, useState} from "react";
 import {topRated} from "@/app/server/bridge";
@@ -21,19 +21,19 @@ export default function TopRated() {
 
     if (top == undefined) {
         return <Center m={10}>
-            <CircularProgress isIndeterminate/>
+            <Spinner/>
         </Center>
     }
 
     return (
         <>
-            <OrderedList pt='2' fontSize='sm'>
+            <List.Root as='ol' pt='2' fontSize='sm'>
                 {top.map((movie) => (
-                    <ListItem key={movie.id}>
+                    <List.Item key={movie.id}>
                         <MovieCard movie={movie}/>
-                    </ListItem>
+                    </List.Item>
                 ))}
-            </OrderedList>
+            </List.Root>
         </>
     )
 }

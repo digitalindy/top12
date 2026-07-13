@@ -5,17 +5,15 @@ import {createUser} from "@/app/server/bridge";
 import {
     Box,
     Button,
-    FormControl,
-    FormLabel,
+    Field,
     Heading,
     Input,
     InputGroup,
-    InputLeftElement,
     Textarea,
-    useColorModeValue,
-    useToast,
     VStack
 } from '@chakra-ui/react'
+import {useColorModeValue} from "@/components/ui/color-mode";
+import {toaster} from "@/components/ui/toaster";
 import {BsPerson} from "react-icons/bs";
 import {useRouter} from "next/navigation";
 import {FaPlus} from "react-icons/fa6";
@@ -26,7 +24,6 @@ export default function New() {
     const [name, setName] = useState<string>("")
     const [philosophy, setPhilosophy] = useState<string>("")
 
-    const toast = useToast()
     const router = useRouter()
 
     const create = () => {
@@ -35,10 +32,10 @@ export default function New() {
         }
         createUser(name, philosophy)
             .then((user) => {
-                toast({
+                toaster.create({
                     title: 'New Top12 created.',
                     description: "Redirecting to your new edit page",
-                    status: 'success',
+                    type: 'success',
                     duration: 9000,
                 })
 
@@ -58,43 +55,34 @@ export default function New() {
                 p={8}
                 color={useColorModeValue('gray.700', 'whiteAlpha.900')}
                 shadow="base">
-                <VStack spacing={5}>
-                    <FormControl isRequired>
-                        <FormLabel>Name</FormLabel>
+                <VStack gap={5}>
+                    <Field.Root required>
+                        <Field.Label>Name</Field.Label>
 
-                        <InputGroup>
-                            <InputLeftElement>
-                                <BsPerson/>
-                            </InputLeftElement>
+                        <InputGroup startElement={<BsPerson/>}>
                             <Input type="text" name="name" placeholder="Your Name"
                                    onChange={(event) => setName(event.target.value)}/>
                         </InputGroup>
-                    </FormControl>
+                    </Field.Root>
 
-                    <FormControl isRequired>
-                        <FormLabel>Philosophy</FormLabel>
+                    <Field.Root required>
+                        <Field.Label>Philosophy</Field.Label>
 
-                        <InputGroup>
-                            <Textarea
-                                h={150}
-                                onChange={(event) => setPhilosophy(event.target.value)}
-                                placeholder={PHILOSOPHY_PLACEHOLDER}/>
-                        </InputGroup>
-                    </FormControl>
+                        <Textarea
+                            h={150}
+                            onChange={(event) => setPhilosophy(event.target.value)}
+                            placeholder={PHILOSOPHY_PLACEHOLDER}/>
+                    </Field.Root>
                     <Button
                         onClick={create}
-                        alignSelf='right'
-                        as='a'
+                        alignSelf='flex-end'
                         fontSize='sm'
                         fontWeight={400}
-                        aria-label='New'
-                        leftIcon={<FaPlus/>}>
-                        Create
+                        aria-label='New'>
+                        <FaPlus/> Create
                     </Button>
                 </VStack>
             </Box>
         </VStack>
     )
 }
-
-

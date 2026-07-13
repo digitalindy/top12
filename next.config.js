@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    experimental: {
-        serverActions: true
-    }
+    // server actions are stable and enabled by default since Next 14 — no config needed
 }
 
 module.exports = nextConfig

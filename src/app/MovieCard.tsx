@@ -1,15 +1,14 @@
 'use client'
 
-import {Card, CardBody, CardFooter, Flex, Heading, Image, Link, Text} from "@chakra-ui/react";
+import {Card, Flex, Heading, Image, Link, Text} from "@chakra-ui/react";
 import React from "react";
 import {Movie} from "@/app/server/Core";
 
 export default function MovieCard({movie, children}: { movie: Movie, children?: React.ReactNode }) {
 
     return (
-        <Card
-            key={`mc-${movie.id}`}
-            direction='row'
+        <Card.Root
+            flexDirection='row'
             variant='outline'
             overflow='hidden'
             mb={1}
@@ -22,20 +21,20 @@ export default function MovieCard({movie, children}: { movie: Movie, children?: 
                 />
             </Flex>
 
-            <CardBody p={0}>
+            <Card.Body p={0}>
                 <Heading size='sm' p={2}>
                     <Link href={`https://www.themoviedb.org/movie/${movie.id}`}>
                         {movie.title} ({new Date(movie.release_date).getFullYear()})
                     </Link>
                 </Heading>
 
-                <Text size='sm' noOfLines={[2, 3]} px={2}>
+                <Text lineClamp={[2, 3]} px={2}>
                     {movie.overview}
                 </Text>
-            </CardBody>
-            <CardFooter>
+            </Card.Body>
+            <Card.Footer>
                 {children}
-            </CardFooter>
-        </Card>
+            </Card.Footer>
+        </Card.Root>
     )
 }

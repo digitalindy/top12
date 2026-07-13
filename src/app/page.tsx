@@ -1,7 +1,7 @@
 'use client'
 
 import {User} from "@/app/server/Core";
-import {Alert, AlertIcon, Card, CardBody, Center, CircularProgress, Flex, Heading, Image, Input, Link} from "@chakra-ui/react";
+import {Alert, Card, Center, Flex, Heading, Image, Input, Link, Spinner} from "@chakra-ui/react";
 import NextLink from "next/link";
 import {useEffect, useState} from "react";
 import {listUsers} from "@/app/server/bridge";
@@ -30,17 +30,19 @@ export default function Index() {
     if (users == undefined) {
         return (
             <Center m={10}>
-                <CircularProgress isIndeterminate/>
+                <Spinner/>
             </Center>
         )
     }
 
     return (
         <>
-            <Alert status='info' m={1} fontSize='sm' borderRadius='lg'>
-                <AlertIcon boxSize={4}/>
-                Tap a list name for a more detailed view!
-            </Alert>
+            <Alert.Root status='info' m={1} fontSize='sm' borderRadius='lg'>
+                <Alert.Indicator/>
+                <Alert.Content>
+                    Tap a list name for a more detailed view!
+                </Alert.Content>
+            </Alert.Root>
             <Input
                 placeholder='Filter by name...'
                 value={filter}
@@ -48,22 +50,24 @@ export default function Index() {
                 m={1}
                 size='sm'
             />
-            
+
             {users
                 .filter(user => user.top?.length > 0)
                 .filter((user) => user.name.toLowerCase().includes(filter.toLowerCase()))
                 .map((user) => (
                 <Flex key={`${user.id}`} direction='column'>
                     <Heading size='md' mt={3}>
-                        <Link as={NextLink} href={`/${user.id}`} textDecoration='underline'>
-                            {`${user.name}'s Top 12`}
+                        <Link asChild textDecoration='underline'>
+                            <NextLink href={`/${user.id}`}>
+                                {`${user.name}'s Top 12`}
+                            </NextLink>
                         </Link>
                     </Heading>
                     <Flex pt='2' fontSize='sm' w='100%' flexWrap='wrap'>
-                        {(user.top ? user.top : []).slice(0, 12).map((movie, index) => (
-                            <Card
+                        {(user.top ? user.top : []).slice(0, 12).map((movie) => (
+                            <Card.Root
                                 key={`mc-${movie.id}`}
-                                direction='column'
+                                flexDirection='column'
                                 variant='outline'
                                 overflow='hidden'
                                 mb={1}
@@ -76,14 +80,14 @@ export default function Index() {
                                     alt={movie.title}
                                 />
 
-                                <CardBody p={0} m={2}>
+                                <Card.Body p={0} m={2}>
                                     <Heading size='sm'>
                                         <Link href={`https://www.themoviedb.org/movie/${movie.id}`}>
                                             {movie.title} ({new Date(movie.release_date).getFullYear()})
                                         </Link>
                                     </Heading>
-                                </CardBody>
-                            </Card>
+                                </Card.Body>
+                            </Card.Root>
                         ))}
                     </Flex>
                 </Flex>
