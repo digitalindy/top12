@@ -1,21 +1,11 @@
 'use client'
 
-import {Movie, Pick} from "@/app/server/Core";
-import {
-    Box,
-    Button,
-    Center,
-    CircularProgress,
-    Heading, Link,
-    Popover,
-    PopoverArrow, PopoverBody, PopoverCloseButton,
-    PopoverContent, PopoverHeader,
-    PopoverTrigger, Tag, TagLabel, TagLeftIcon, TagRightIcon
-} from "@chakra-ui/react";
+import {Pick} from "@/app/server/Core";
+import {Box, Center, Heading, Link, Spinner, Tag} from "@chakra-ui/react";
 import MovieCard from "@/app/MovieCard";
 import React, {useEffect, useState} from "react";
-import {randomPick, topPicks} from "@/app/server/bridge";
-import {FaArrowDown, FaRectangleList, FaUserGroup} from "react-icons/fa6";
+import {topPicks} from "@/app/server/bridge";
+import {FaRectangleList} from "react-icons/fa6";
 import NextLink from "next/link";
 
 export default function Picks() {
@@ -31,7 +21,7 @@ export default function Picks() {
 
     if (picks.length == 0) {
         return <Center m={10}>
-            <CircularProgress isIndeterminate/>
+            <Spinner/>
         </Center>
     }
 
@@ -44,13 +34,15 @@ export default function Picks() {
                 <Box key={pick.movie.id} my={4}>
                     <MovieCard movie={pick.movie}/>
                     {pick.users.map((user) => (
-                        <Link as={NextLink} key={user.id} href={`/${user.id}`}>
-                        <Tag size={'sm'} mr={3} variant='outline' colorScheme='blue'>
-                            <TagLeftIcon as={FaRectangleList} />
-                            <TagLabel>
-                                {user.name}
-                            </TagLabel>
-                        </Tag>
+                        <Link asChild key={user.id}>
+                            <NextLink href={`/${user.id}`}>
+                                <Tag.Root size={'sm'} mr={3} variant='outline' colorPalette='blue'>
+                                    <Tag.StartElement><FaRectangleList/></Tag.StartElement>
+                                    <Tag.Label>
+                                        {user.name}
+                                    </Tag.Label>
+                                </Tag.Root>
+                            </NextLink>
                         </Link>
                     ))}
                 </Box>

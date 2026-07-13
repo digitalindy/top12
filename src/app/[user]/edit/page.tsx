@@ -1,32 +1,24 @@
 'use client'
 
-import React, {useEffect, useRef, useState} from "react";
+import React, {use, useEffect, useRef, useState} from "react";
 import NextLink from 'next/link'
 import {getUser, searchMovie, updateUser} from "@/app/server/bridge";
 import {
     Alert,
-    AlertDialog,
-    AlertDialogBody,
-    AlertDialogContent,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogOverlay,
-    AlertIcon,
     Button,
     Center,
-    CircularProgress,
-    Divider,
+    Dialog,
+    Field,
     Flex,
-    FormControl,
-    FormLabel,
     Heading,
     HStack,
     IconButton,
     Image,
     Input,
     InputGroup,
-    InputLeftElement,
-    Link,
+    Portal,
+    Separator,
+    Spinner,
     Text,
     Textarea,
     useDisclosure,
@@ -46,7 +38,7 @@ const ReorderItem = ({movie, onRemove, sendToBottom}: {
                      sendToBottom: (movie: Movie) => void}) => {
     const controls = useDragControls()
 
-    const {isOpen, onOpen, onClose} = useDisclosure()
+    const {open, onOpen, onClose} = useDisclosure()
     const cancelRef = useRef<HTMLButtonElement>(null)
 
     const removeConfirm = () => {
@@ -62,53 +54,67 @@ const ReorderItem = ({movie, onRemove, sendToBottom}: {
     >
         <MovieCard movie={movie}>
             <VStack>
-                <IconButton icon={<FaSort/>} aria-label="Move" size='sm' mr={3}
+                <IconButton aria-label="Move" size='sm' mr={3}
                             style={{touchAction: "none"}}
                             onPointerDown={(e) => {
                                 controls.start(e, {snapToCursor: true})
                                 e.stopPropagation()
                             }}
-                />
-                <IconButton icon={<FaArrowDownLong/>} aria-label="Send to Bottom" size='sm' mr={3}
+                >
+                    <FaSort/>
+                </IconButton>
+                <IconButton aria-label="Send to Bottom" size='sm' mr={3}
                             onClick={() => sendToBottom(movie)}
-                />
+                >
+                    <FaArrowDownLong/>
+                </IconButton>
             </VStack>
-            <IconButton icon={<FaTrash/>} aria-label="Remove" size='sm' colorScheme='red'
-                        onClick={onOpen}/>
+            <IconButton aria-label="Remove" size='sm' colorPalette='red'
+                        onClick={onOpen}>
+                <FaTrash/>
+            </IconButton>
 
-            <AlertDialog
-                isOpen={isOpen}
-                leastDestructiveRef={cancelRef}
-                onClose={onClose}
+            <Dialog.Root
+                role="alertdialog"
+                open={open}
+                onOpenChange={(e) => (e.open ? onOpen() : onClose())}
+                initialFocusEl={() => cancelRef.current}
             >
-                <AlertDialogOverlay>
-                    <AlertDialogContent>
-                        <AlertDialogHeader fontSize='sm' fontWeight='bold'>
-                            Remove {movie.title}
-                        </AlertDialogHeader>
+                <Portal>
+                    <Dialog.Backdrop/>
+                    <Dialog.Positioner>
+                        <Dialog.Content>
+                            <Dialog.Header>
+                                <Dialog.Title fontSize='sm' fontWeight='bold'>
+                                    Remove {movie.title}
+                                </Dialog.Title>
+                            </Dialog.Header>
 
-                        <AlertDialogBody>
-                            Are you sure?
-                        </AlertDialogBody>
+                            <Dialog.Body>
+                                Are you sure?
+                            </Dialog.Body>
 
-                        <AlertDialogFooter>
-                            <Button ref={cancelRef} onClick={onClose}>
-                                Cancel
-                            </Button>
-                            <Button colorScheme='red' onClick={removeConfirm} ml={3}>
-                                Remove
-                            </Button>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialogOverlay>
-            </AlertDialog>
+                            <Dialog.Footer>
+                                <Button ref={cancelRef} onClick={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button colorPalette='red' onClick={removeConfirm} ml={3}>
+                                    Remove
+                                </Button>
+                            </Dialog.Footer>
+                        </Dialog.Content>
+                    </Dialog.Positioner>
+                </Portal>
+            </Dialog.Root>
         </MovieCard>
     </Reorder.Item>
 }
 
-export default function Edit({params}: {
-    params: { user: string }
+export default function Edit(props: {
+    params: Promise<{ user: string }>
 }) {
+
+    const {user: userId} = use(props.params)
 
     const [user, setUser] = useState<User>()
 
@@ -127,7 +133,7 @@ export default function Edit({params}: {
     const [lastSaved, setLastSaved] = useState<User>()
 
     useEffect(() => {
-        getUser(params.user)
+        getUser(userId)
             .then((user) => {
                 if (user.top == undefined) {
                     user.top = []
@@ -136,7 +142,7 @@ export default function Edit({params}: {
                 setUser(user)
                 setLastSaved(user)
             })
-    }, [params]);
+    }, [userId]);
 
     useEffect(() => {
         if (top == undefined || user == undefined || user!!.top == top) {
@@ -232,7 +238,7 @@ export default function Edit({params}: {
                     <Heading textAlign='left' w="100%" size='sm' my={2}>
                         Honorable Mentions
                     </Heading>
-                    <Divider/>
+                    <Separator/>
                 </>
             )
         }
@@ -240,42 +246,35 @@ export default function Edit({params}: {
 
     if (user == undefined) {
         return <Center m={10}>
-            <CircularProgress isIndeterminate/>
+            <Spinner/>
         </Center>
     }
 
     return (
         <>
             <VStack>
-                <Alert status='info' m={1} fontSize='sm' borderRadius='lg'>
-                    <AlertIcon/>
-                    Keep adding past 12 movies to add to your honorable mentions
-                </Alert>
+                <Alert.Root status='info' m={1} fontSize='sm' borderRadius='lg'>
+                    <Alert.Indicator/>
+                    <Alert.Content>
+                        Keep adding past 12 movies to add to your honorable mentions
+                    </Alert.Content>
+                </Alert.Root>
                 <HStack w='100%'>
-                    <Link as={NextLink} href={`/${user.id}`} legacyBehavior
-                          alignSelf='start'
-                    >
-                        <Button
-                            as='a'
-                            m={3}
-                            aria-label='Back'
-                            leftIcon={<FaArrowLeft/>}>
-                            Back
-                        </Button>
-                    </Link>
+                    <Button asChild m={3} alignSelf='start' aria-label='Back'>
+                        <NextLink href={`/${user.id}`}>
+                            <FaArrowLeft/> Back
+                        </NextLink>
+                    </Button>
                     <Heading textAlign='left' w="100%" size='md'>
                         Edit {user.name + "'"}s Movies
-                        <CircularProgress isIndeterminate color='green.300' size={4} hidden={!saving} ml={2}/>
-                        <Text as='span' fontSize='xs' color='green.300' ml={2} hidden={!saved}>Saved</Text>
+                        {saving && <Spinner size='xs' color='green.300' ml={2}/>}
+                        {saved && <Text as='span' fontSize='xs' color='green.300' ml={2}>Saved</Text>}
                     </Heading>
                 </HStack>
-                <FormControl isRequired>
-                    <FormLabel>Name</FormLabel>
+                <Field.Root required>
+                    <Field.Label>Name</Field.Label>
 
-                    <InputGroup>
-                        <InputLeftElement>
-                            <BsPerson/>
-                        </InputLeftElement>
+                    <InputGroup startElement={<BsPerson/>}>
                         <Input type="text" name="name" placeholder="Your Name"
                                value={user.name}
                                backgroundColor='white'
@@ -284,27 +283,24 @@ export default function Edit({params}: {
                                    setUser(Object.assign({}, user))
                                }}/>
                     </InputGroup>
-                </FormControl>
+                </Field.Root>
 
-                <FormControl isRequired>
-                    <FormLabel>Philosophy</FormLabel>
+                <Field.Root required>
+                    <Field.Label>Philosophy</Field.Label>
 
-                    <InputGroup>
-                        <Textarea
-                            h={130}
-                            value={user.philosophy}
-                            backgroundColor='white'
-                            onChange={(event) => {
-                                user.philosophy = event.target.value
-                                setUser(Object.assign({}, user))
-                            }}
-                            placeholder={PHILOSOPHY_PLACEHOLDER}/>
-                    </InputGroup>
-                </FormControl>
-                <FormControl>
-                    <FormLabel>Movies</FormLabel>
-                    <InputGroup>
-                        <VStack w='100%'>
+                    <Textarea
+                        h={130}
+                        value={user.philosophy}
+                        backgroundColor='white'
+                        onChange={(event) => {
+                            user.philosophy = event.target.value
+                            setUser(Object.assign({}, user))
+                        }}
+                        placeholder={PHILOSOPHY_PLACEHOLDER}/>
+                </Field.Root>
+                <Field.Root>
+                    <Field.Label>Movies</Field.Label>
+                    <VStack w='100%'>
                         <AutoComplete freeSolo
                                       isLoading={searching}
                                       filter={filterOutTop}
@@ -333,7 +329,7 @@ export default function Edit({params}: {
                                                 w='100%'
                                                 textAlign='left'
                                                 size='sm'>{movie.title} ({new Date(movie.release_date).getFullYear()})</Heading>
-                                            <Text size='sm' noOfLines={3}>{movie.overview}</Text>
+                                            <Text lineClamp={3}>{movie.overview}</Text>
                                         </VStack>
                                     </AutoCompleteItem>
                                 ))}
@@ -352,9 +348,8 @@ export default function Edit({params}: {
                                 </div>
                             ))}
                         </Reorder.Group>
-                        </VStack>
-                    </InputGroup>
-                </FormControl>
+                    </VStack>
+                </Field.Root>
             </VStack>
 
         </>

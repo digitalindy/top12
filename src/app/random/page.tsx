@@ -4,18 +4,20 @@ import {Pick, User} from "@/app/server/Core";
 import {
     Box,
     Button,
-    Center, Checkbox,
-    CircularProgress, Flex,
-    Heading, Link,
+    Center,
+    Checkbox,
+    Flex,
+    Heading,
+    Link,
     Popover,
-    PopoverArrow, PopoverBody, PopoverCloseButton,
-    PopoverContent, PopoverHeader,
-    PopoverTrigger, Tag, TagLabel, TagLeftIcon
+    Portal,
+    Spinner,
+    Tag
 } from "@chakra-ui/react";
 import MovieCard from "@/app/MovieCard";
 import React, {useEffect, useState} from "react";
 import {listUsers, randomPick} from "@/app/server/bridge";
-import {FaArrowDown, FaRectangleList, FaUserGroup} from "react-icons/fa6";
+import {FaArrowDown, FaRectangleList} from "react-icons/fa6";
 import NextLink from "next/link";
 
 export default function TopRated() {
@@ -32,6 +34,8 @@ export default function TopRated() {
                 setUsers(users)
                 setSelected(users)
             })
+        // run once on mount; the guard above makes `selected` a deliberate non-dependency
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -44,7 +48,7 @@ export default function TopRated() {
 
     if (pick == undefined || users == undefined || selected == undefined) {
         return <Center m={10}>
-            <CircularProgress isIndeterminate/>
+            <Spinner/>
         </Center>
     }
 
@@ -62,22 +66,25 @@ export default function TopRated() {
                 A Friend{"'"}s Random Top12
             </Heading>
 
-            <Button colorScheme={'blue'} mr={4} onClick={setWaterPot}>Only Water in da Pot</Button>
-            <Button colorScheme={'blue'} onClick={setAlefire}>Only Alefire</Button>
+            <Button colorPalette={'blue'} mr={4} onClick={setWaterPot}>Only Water in da Pot</Button>
+            <Button colorPalette={'blue'} onClick={setAlefire}>Only Alefire</Button>
 
             <Flex my={4} style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                 {users.map((user) => {
                     return (
                         <Flex key={user.id} style={{width: '30%', flexDirection: 'row'}}>
-                            <Checkbox mr={3} key={user.id}
-                                      isChecked={selected.find(u => u.id == user.id) != undefined}
-                                      onChange={(event)=> {
-                                          if (event.target.checked) {
-                                              setSelected([...selected, user])
-                                          } else {
-                                              setSelected(selected.filter(u => u.id != user.id))
-                                          }
-                                      }} />
+                            <Checkbox.Root mr={3}
+                                           checked={selected.find(u => u.id == user.id) != undefined}
+                                           onCheckedChange={(e) => {
+                                               if (e.checked) {
+                                                   setSelected([...selected, user])
+                                               } else {
+                                                   setSelected(selected.filter(u => u.id != user.id))
+                                               }
+                                           }}>
+                                <Checkbox.HiddenInput/>
+                                <Checkbox.Control/>
+                            </Checkbox.Root>
                             {user.name}
                         </Flex>
                     )
@@ -87,28 +94,34 @@ export default function TopRated() {
                     <MovieCard movie={pick.movie}/>
                 </Box>
             </Flex>
-            <Popover>
-                <PopoverTrigger>
-                    <Button colorScheme={'blue'} rightIcon={<FaArrowDown/>}>See who{"'"}s list this came from</Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                    <PopoverArrow />
-                    <PopoverCloseButton />
-                    <PopoverBody p={4}>
-                        Thank these friends for the recommendation:
-                        {pick.users.map((user) => (
-                            <Link as={NextLink} key={user.id} href={`/${user.id}`}>
-                                <Tag size={'sm'} ml={3} variant='outline' colorScheme='blue'>
-                                    <TagLeftIcon as={FaRectangleList} />
-                                    <TagLabel>
-                                        {user.name}
-                                    </TagLabel>
-                                </Tag>
-                            </Link>
-                        ))}
-                    </PopoverBody>
-                </PopoverContent>
-            </Popover>
+            <Popover.Root>
+                <Popover.Trigger asChild>
+                    <Button colorPalette={'blue'}>See who{"'"}s list this came from <FaArrowDown/></Button>
+                </Popover.Trigger>
+                <Portal>
+                    <Popover.Positioner>
+                        <Popover.Content>
+                            <Popover.Arrow/>
+                            <Popover.CloseTrigger/>
+                            <Popover.Body p={4}>
+                                Thank these friends for the recommendation:
+                                {pick.users.map((user) => (
+                                    <Link asChild key={user.id}>
+                                        <NextLink href={`/${user.id}`}>
+                                            <Tag.Root size={'sm'} ml={3} variant='outline' colorPalette='blue'>
+                                                <Tag.StartElement><FaRectangleList/></Tag.StartElement>
+                                                <Tag.Label>
+                                                    {user.name}
+                                                </Tag.Label>
+                                            </Tag.Root>
+                                        </NextLink>
+                                    </Link>
+                                ))}
+                            </Popover.Body>
+                        </Popover.Content>
+                    </Popover.Positioner>
+                </Portal>
+            </Popover.Root>
         </>
     )
 }
